@@ -1,15 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% seo %}
-  </head>
-  <body>
-    <main class="page-content" aria-label="Content">
-      <div class="wrapper">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  {% seo %}
+
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | relative_url }}">
+  <script src="{{ '/assets/js/main.js' | relative_url }}" defer></script>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="https://www.keycloak.org/resources/images/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://www.keycloak.org/resources/images/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://www.keycloak.org/resources/images/favicon/favicon-16x16.png">
+
+</head>
+
+<body>
+
+  <header class="site-header">
+    <a href="{{ '/' | relative_url }}" class="site-title">{{ site.title | escape }}</a>
+    <div class="header-controls">
+        <button id="theme-toggle" class="theme-toggle" title="Toggle theme">🌓</button>
+        <button id="sidebar-toggle" class="sidebar-toggle" title="Toggle sidebar">☰</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="#architecture-overview">Architecture Overview</a></li>
+          <li><a href="#global-host-configuration-all-nodes">Global Host Configuration</a></li>
+          <li><a href="#requirements--sizing">Requirements & Sizing</a></li>
+          <li><a href="#prepare-disks-xfs-and-mounts-data14">Prepare Disks (XFS)</a></li>
+          <li><a href="#install-docker--initialize-swarm">Install Docker & Swarm</a></li>
+          <li><a href="#node-labels--overlay-network">Node Labels & Network</a></li>
+          <li><a href="#secrets-root-credentials">Secrets (Root Credentials)</a></li>
+          <li><a href="#deploy-the-cluster-docker-stackyml">Deploy the Cluster</a></li>
+          <li><a href="#load-balancer-nginx">Load Balancer (NGINX)</a></li>
+          <li><a href="#first-login-users--policies-mc">First Login & Users</a></li>
+          <li><a href="#health-readiness--observability">Health & Observability</a></li>
+          <li><a href="#upgrades-zero-downtime--rolling-updates">Upgrades & Rolling Updates</a></li>
+          <li><a href="#capacity-expansion-add-a-new-server-pool">Capacity Expansion</a></li>
+          <li><a href="#security-hardening-checklist">Security Hardening</a></li>
+          <li><a href="#troubleshooting">Troubleshooting</a></li>
+          <li><a href="#appendix-handy-commands">Appendix: Handy Commands</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-wrapper">
         {{ content }}
+
+        <footer class="site-footer">
+          <p>&copy; {{ 'now' | date: "%Y" }} {{ site.author.name | default: "Your Name" }}. Licensed under Apache 2.0.</p>
+        </footer>
       </div>
     </main>
-  </body>
+  </div>
+
+</body>
+
 </html>

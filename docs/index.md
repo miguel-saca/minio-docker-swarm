@@ -6,7 +6,9 @@ description: Distributed, S3-compatible object storage on Docker Swarm with XFS,
 
 # MinIO on Docker Swarm — Production Guide
 
-> This site mirrors the repository’s manual and is optimized for SEO. You can also read the single-file guide in the repo root: **README-minio-swarm.md**.
+<div class="alert info">
+<p>This site mirrors the repository’s manual and is optimized for SEO. You can also read the single-file guide in the repo root: <strong>README-minio-swarm.md</strong>.</p>
+</div>
 
 # Production-Ready MinIO on Docker Swarm (Distributed / Multi-Node)
 
