@@ -1,0 +1,62 @@
+# OS junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+*.swp
+*.swo
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs
+*.log
+logs/
+*.pid
+
+# Environment files & secrets
+.env
+.env.*
+*.secret
+secrets/
+*.key
+*.pem
+
+# Build artifacts
+dist/
+build/
+tmp/
+.cache/
+coverage/
+*.coverage
+
+# Node (if used locally for docs/assets tooling)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python (rare here, but safe)
+__pycache__/
+*.pyc
+
+# Jekyll (GitHub Pages)
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+.bundle/
+vendor/
+
+# Ruby lockfile (optional for Jekyll local builds; generally not needed here)
+Gemfile.lock
+
+# Docker Compose overrides
+docker-compose.override.yml
+
+# Archives
+*.tar
+*.tar.gz
+*.zip

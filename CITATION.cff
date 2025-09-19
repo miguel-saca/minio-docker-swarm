@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+title: "MinIO on Docker Swarm — Production Guide"
+authors:
+  - family-names: "Saca"
+    given-names: "Miguel"
+version: "1.0.0"
+date-released: "2025-09-19"
+keywords:
+  - MinIO
+  - Docker Swarm
+  - S3
+  - Object Storage
+  - Production

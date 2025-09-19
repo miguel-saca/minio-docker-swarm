@@ -1,0 +1,8 @@
+title: "MinIO on Docker Swarm — Production Guide"
+description: "Distributed, S3-compatible object storage on Docker Swarm with XFS, erasure coding, NGINX, secrets, health checks, metrics, and zero-downtime upgrades."
+theme: minima
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+url: "https://miguel-saca.github.io"
+baseurl: "/minio-docker-swarm"
