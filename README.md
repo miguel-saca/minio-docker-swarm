@@ -253,10 +253,20 @@ sudo docker network create   --driver overlay   --attachable   # --opt encrypted
 ---
 
 ## Secrets (Root Credentials)
-Use Swarm **secrets** and MinIO’s `_FILE` env variants:
+
+Create the root user and password as Docker secrets. This command should be run **only on a manager node**. It uses `read -s` to prompt for credentials without saving them to your shell history.
+
 ```bash
-printf '%s' 'CHANGE_ME_MINIO_ROOT_USER'     | sudo docker secret create minio_root_user -
-printf '%s' 'CHANGE_ME_MINIO_ROOT_PASSWORD' | sudo docker secret create minio_root_password -
+# Interactively and securely create secrets
+read -rsp "MINIO_ROOT_USER: " MINIO_ROOT_USER; echo
+read -rsp "MINIO_ROOT_PASSWORD: " MINIO_ROOT_PASSWORD; echo
+
+# Create Docker secrets from the variables
+printf '%s' "$MINIO_ROOT_USER"     | sudo docker secret create minio_root_user -
+printf '%s' "$MINIO_ROOT_PASSWORD" | sudo docker secret create minio_root_password -
+
+# Unset the variables to remove them from the shell session
+unset MINIO_ROOT_USER MINIO_ROOT_PASSWORD
 ```
 
 ---
