@@ -580,8 +580,8 @@ Next, create an alias to connect to your MinIO cluster. An alias is a nickname f
 
 ```bash
 # Get root credentials from Docker secrets (run this on a manager node)
-MINIO_ROOT_USER=$(sudo docker secret inspect --format '{{.Spec.Data}}' minio_root_user | base64 -d)
-MINIO_ROOT_PASSWORD=$(sudo docker secret inspect --format '{{.Spec.Data}}' minio_root_password | base64 -d)
+MINIO_ROOT_USER=$(sudo docker secret inspect --format '{% raw %}{{.Spec.Data}}{% endraw %}' minio_root_user | base64 -d)
+MINIO_ROOT_PASSWORD=$(sudo docker secret inspect --format '{% raw %}{{.Spec.Data}}{% endraw %}' minio_root_password | base64 -d)
 
 # Create the alias inside the mc container
 # Option A: From an external host (points to the NGINX proxy)

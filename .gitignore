@@ -60,3 +60,9 @@ docker-compose.override.yml
 *.tar
 *.tar.gz
 *.zip
+
+_site/
+docs/vendor/
+docs/Gemfile.lock
+tests/
+Gemfile
