@@ -29,12 +29,13 @@ A complete, opinionated, **production-grade** manual to deploy a **distributed M
   - [Table of Contents](#table-of-contents)
   - [Architecture Overview](#architecture-overview)
   - [Global Host Configuration (All Nodes)](#global-host-configuration-all-nodes)
-    - [1) Set hostnames (consistent naming)](#1-set-hostnames-consistent-naming)
-    - [2) Hostname resolution](#2-hostname-resolution)
-    - [3) Create a system group/user (optional but recommended for directory ownership)](#3-create-a-system-groupuser-optional-but-recommended-for-directory-ownership)
-    - [4) Time sync, firewall, performance profile (RHEL/Alma Linux example)](#4-time-sync-firewall-performance-profile-rhelalma-linux-example)
-    - [5) Open required ports (between nodes and LB)](#5-open-required-ports-between-nodes-and-lb)
-    - [6) SELinux (if enforcing)](#6-selinux-if-enforcing)
+    - [1) Update All Packages](#1-update-all-packages)
+    - [2) Set hostnames (consistent naming)](#2-set-hostnames-consistent-naming)
+    - [3) Hostname resolution](#3-hostname-resolution)
+    - [4) Create a system group/user (optional but recommended for directory ownership)](#4-create-a-system-groupuser-optional-but-recommended-for-directory-ownership)
+    - [5) Time sync, firewall, performance profile (RHEL/Alma Linux example)](#5-time-sync-firewall-performance-profile-rhelalma-linux-example)
+    - [6) Configure Firewall (Docker Swarm & MinIO)](#6-configure-firewall-docker-swarm--minio)
+    - [7) SELinux (if enforcing)](#7-selinux-if-enforcing)
   - [Requirements \& Sizing](#requirements--sizing)
   - [Prepare Disks (XFS) and Mounts `/data1..4`](#prepare-disks-xfs-and-mounts-data14)
   - [Install Docker \& Initialize Swarm](#install-docker--initialize-swarm)
@@ -68,14 +69,21 @@ A complete, opinionated, **production-grade** manual to deploy a **distributed M
 ## Global Host Configuration (All Nodes)
 Do this on **every storage node** and the **load balancer** before deploying.
 
-### 1) Set hostnames (consistent naming)
+### 1) Update All Packages
+First, ensure all system packages are up-to-date. This minimizes potential conflicts and security vulnerabilities.
+
+```bash
+sudo dnf upgrade -y
+```
+
+### 2) Set hostnames (consistent naming)
 On each node:
 ```bash
 # Replace N with 1..4 on storage nodes; use "minio-lb" on the balancer
 sudo hostnamectl set-hostname minioN
 ```
 
-### 2) Hostname resolution
+### 3) Hostname resolution
 Create a shared mapping (use your real IPs):
 ```bash
 cat <<'EOF' | sudo tee -a /etc/hosts
@@ -87,7 +95,7 @@ cat <<'EOF' | sudo tee -a /etc/hosts
 EOF
 ```
 
-### 3) Create a system group/user (optional but recommended for directory ownership)
+### 4) Create a system group/user (optional but recommended for directory ownership)
 ```bash
 # A local OS user/group to own the data mountpoints on the host:
 sudo groupadd --system minio || true
@@ -96,14 +104,14 @@ sudo useradd  --system --no-create-home --shell /sbin/nologin --gid minio minio 
 
 > **Note**: The Dockerized MinIO process must be able to read/write `/data*`. Owning these paths by the `minio` group (or `root`) is fine; just ensure permissions allow read/write for the container. If you run SELinux enforcing, set contexts (see below).
 
-### 4) Time sync, firewall, performance profile (RHEL/Alma Linux example)
+### 5) Time sync, firewall, performance profile (RHEL/Alma Linux example)
 ```bash
 sudo dnf -y install chrony firewalld tuned policycoreutils-python-utils setools-console jq
 sudo systemctl enable --now chronyd firewalld
 sudo tuned-adm profile throughput-performance
 ```
 
-### 5) Configure Firewall (Docker Swarm & MinIO)
+### 6) Configure Firewall (Docker Swarm & MinIO)
 
 These rules cover both **Docker Swarm** communication and **MinIO** application traffic. The source `10.10.13.0/24` should match your node subnet.
 
@@ -131,7 +139,7 @@ done
 sudo firewall-cmd --reload
 ```
 
-### 6) SELinux (if enforcing)
+### 7) SELinux (if enforcing)
 ```bash
 # Allow containers to use /data1..4
 sudo semanage fcontext -a -t container_file_t '/data[1-4](/.*)?'
