@@ -103,13 +103,31 @@ sudo systemctl enable --now chronyd firewalld
 sudo tuned-adm profile throughput-performance
 ```
 
-### 5) Open required ports (between nodes and LB)
+### 5) Configure Firewall (Docker Swarm & MinIO)
+
+These rules cover both **Docker Swarm** communication and **MinIO** application traffic. The source `10.10.13.0/24` should match your node subnet.
+
 ```bash
-# Allow 9000 (S3) & 9001 (Console) from cluster + LB
+# --- Docker Swarm Communication ---
+
+# Manager node only (e.g., host ending in .51)
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='2377' protocol='tcp' accept"
+sudo firewall-cmd --permanent --add-rich-rule="rule protocol value='esp' accept"
+
+# All nodes except LB
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='7946' protocol='tcp' accept"
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='7946' protocol='udp' accept"
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='4789' protocol='udp' accept"
+
+# --- MinIO Application Ports ---
+
+# All storage nodes: Allow 9000 (S3) & 9001 (Console) from cluster + LB
 for SRC in 10.10.13.51 10.10.13.52 10.10.13.53 10.10.13.54 10.10.13.55; do
   sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='${SRC}' port port='9000' protocol='tcp' accept"
   sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='${SRC}' port port='9001' protocol='tcp' accept"
 done
+
+# --- Apply All Rules ---
 sudo firewall-cmd --reload
 ```
 
