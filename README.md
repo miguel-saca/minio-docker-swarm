@@ -560,18 +560,104 @@ export MINIO_BROWSER_REDIRECT_URL="https://minio.example.net/minio/ui"
 
 ---
 
-## First Login, Users & Policies (`mc`)
+## Connecting and Managing with MinIO Client (`mc`)
+
+The MinIO Client (`mc`) is the recommended tool for administering your cluster. The following steps show how to run `mc` via a Docker container, ensuring a consistent environment.
+
+### 1. Set Up `mc` via Docker
+
+First, create a persistent volume for the `mc` configuration and launch a container with an interactive shell. This setup can be done on any host with Docker that can reach the cluster (either a cluster node or an external machine).
+
 ```bash
-# Point MinIO Client to your LB endpoint
-mc alias set s3 https://minio.example.net   "$(sudo docker secret inspect --format '{{index .Spec.Data}}' minio_root_user | base64 -d)"   "$(sudo docker secret inspect --format '{{index .Spec.Data}}' minio_root_password | base64 -d)"
+# 1) (One-time only) Create a volume for mc config
+docker volume create mc-config
 
-mc admin info s3
-mc mb s3/boot-bucket
-
-# Create least-privilege app users & attach policies
-mc admin user add s3 app-user APP-SECRET
-mc admin policy attach s3 readwrite --user app-user
+# 2) Open a shell inside the mc container
+#    --network host is used for easy access when running on a cluster node
+docker run --rm -it --network host -v mc-config:/root/.mc --entrypoint sh --name mc-shell quay.io/minio/mc
 ```
+
+> **Note:** All subsequent `mc` commands are run inside this container's shell.
+
+### 2. Configure a Cluster Alias
+
+Next, create an alias to connect to your MinIO cluster. An alias is a nickname for a MinIO deployment, storing its URL and credentials.
+
+```bash
+# Get root credentials from Docker secrets (run this on a manager node)
+MINIO_ROOT_USER=$(sudo docker secret inspect --format '{{.Spec.Data}}' minio_root_user | base64 -d)
+MINIO_ROOT_PASSWORD=$(sudo docker secret inspect --format '{{.Spec.Data}}' minio_root_password | base64 -d)
+
+# Create the alias inside the mc container
+# Option A: From an external host (points to the NGINX proxy)
+mc alias set myminio https://example.com/minio/s3/ "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" --api "s3v4"
+
+# Option B: From a node within the cluster (points directly to a MinIO service)
+mc alias set myminio http://minio1:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
+```
+
+### 3. Example Workflow: Create a Bucket, User, and Policy
+
+This workflow demonstrates how to create a dedicated user with access restricted to a single bucket.
+
+#### Step 1: Create a Bucket
+
+```bash
+# Create a new bucket named 'test-bucket'
+mc mb myminio/test-bucket
+
+# Verify the bucket was created
+mc ls myminio
+```
+
+#### Step 2: Create a Read/Write Policy
+
+Create a JSON file with a policy that grants full access (`s3:*`) but only to `test-bucket`.
+
+```bash
+# Inside the mc container, create the policy file
+cat <<'EOF' > /tmp/test-bucket-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": ["s3:*"],
+            "Resource": ["arn:aws:s3:::test-bucket/*"]
+        }
+    ]
+}
+EOF
+
+# Add the new policy to MinIO
+mc admin policy add myminio test-bucket-policy /tmp/test-bucket-policy.json
+```
+
+#### Step 3: Create a User and Attach the Policy
+
+Now, create a new user and assign the policy you just created.
+
+```bash
+# Create a new user named 'user.test' with a secure password
+mc admin user add myminio user.test 'YOUR_SECURE_PASSWORD_HERE'
+
+# Attach the bucket-specific policy to the new user
+mc admin policy attach myminio test-bucket-policy --user user.test
+```
+
+#### Step 4: Generate a Service Account for Application Use
+
+For applications, it is best practice to use service accounts, which are long-lived credentials tied to a user. The user `user.test` can create a service account for themselves.
+
+```bash
+# First, create an alias for the new user
+mc alias set testuser https://example.com/minio/s3/ user.test 'YOUR_SECURE_PASSWORD_HERE' --api "s3v4"
+
+# Now, as 'testuser', create a service account
+mc admin user svcacct add --access-key 'app.test.access.key' --secret-key 'app.test.secret.key' testuser user.test
+```
+
+The generated `Access Key` and `Secret Key` can now be used in your application's S3 client configuration to interact with `test-bucket`.
 
 ---
 
