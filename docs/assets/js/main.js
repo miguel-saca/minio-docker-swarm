@@ -23,6 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
       }
+      
+      // Re-highlight code blocks after theme change
+      setTimeout(() => {
+        if (window.Prism) {
+          window.Prism.highlightAll();
+        }
+      }, 50);
     });
   }
 
@@ -45,30 +52,88 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- 2. COPY-TO-CLIPBOARD FOR CODE BLOCKS --- //
-  document.querySelectorAll('.highlight').forEach(highlightDiv => {
-    const codeBlock = highlightDiv.querySelector('pre > code');
-    if (!codeBlock) return;
+  // --- 2. ENHANCED SYNTAX HIGHLIGHTING & COPY-TO-CLIPBOARD --- //
+  
+  // Function to detect language from code block classes
+  function detectLanguage(codeElement) {
+    const classes = codeElement.className || '';
+    const langMatch = classes.match(/language-(\w+)/);
+    return langMatch ? langMatch[1] : '';
+  }
+  
+  // Function to setup code blocks with enhanced features
+  function setupCodeBlocks() {
+    document.querySelectorAll('.highlight').forEach(highlightDiv => {
+      const codeBlock = highlightDiv.querySelector('pre > code');
+      if (!codeBlock) return;
 
-    const copyButton = document.createElement('button');
-    copyButton.className = 'copy-btn';
-    copyButton.textContent = 'Copy';
-    highlightDiv.appendChild(copyButton);
+      // Detect and set language attribute for styling
+      const language = detectLanguage(codeBlock);
+      if (language) {
+        highlightDiv.setAttribute('data-language', language);
+        codeBlock.classList.add(`language-${language}`);
+      }
 
-    copyButton.addEventListener('click', () => {
-      navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-        copyButton.textContent = 'Copied!';
-        copyButton.classList.add('copied');
-        setTimeout(() => {
-          copyButton.textContent = 'Copy';
-          copyButton.classList.remove('copied');
-        }, 2000);
-      }).catch(err => {
-        console.error('Failed to copy text: ', err);
-        copyButton.textContent = 'Error';
-      });
+      // Create copy button if it doesn't exist
+      let copyButton = highlightDiv.querySelector('.copy-btn');
+      if (!copyButton) {
+        copyButton = document.createElement('button');
+        copyButton.className = 'copy-btn';
+        copyButton.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+            <path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+          </svg>
+        `;
+        copyButton.title = 'Copy to clipboard';
+        highlightDiv.appendChild(copyButton);
+
+        copyButton.addEventListener('click', () => {
+          const textToCopy = codeBlock.textContent || codeBlock.innerText;
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            copyButton.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>
+              </svg>
+            `;
+            copyButton.classList.add('copied');
+            copyButton.title = 'Copied!';
+            setTimeout(() => {
+              copyButton.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                  <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                  <path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                </svg>
+              `;
+              copyButton.classList.remove('copied');
+              copyButton.title = 'Copy to clipboard';
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            copyButton.innerHTML = '✗';
+            copyButton.title = 'Copy failed';
+            setTimeout(() => {
+              copyButton.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                  <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                  <path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                </svg>
+              `;
+              copyButton.title = 'Copy to clipboard';
+            }, 2000);
+          });
+        });
+      }
     });
-  });
+  }
+  
+  // Initialize code blocks
+  setupCodeBlocks();
+  
+  // Re-run setup when Prism finishes highlighting (for dynamically loaded content)
+  if (window.Prism) {
+    window.Prism.hooks.add('complete', setupCodeBlocks);
+  }
 
   // --- 3. ACTIVE SIDEBAR LINK HIGHLIGHTING --- //
   const sidebarLinks = document.querySelectorAll('.sidebar-link');
@@ -92,5 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sections.forEach(section => {
       observer.observe(section);
     });
+  }
+  
+  // --- 4. PRISM.JS CONFIGURATION --- //
+  if (window.Prism) {
+    // Configure Prism autoloader
+    window.Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+    
+    // Highlight all code blocks on load
+    window.Prism.highlightAll();
   }
 });

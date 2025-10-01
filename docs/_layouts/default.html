@@ -10,6 +10,11 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <!-- Prism.js for Syntax Highlighting -->
+  <link id="prism-theme" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,64 +54,206 @@
     /* Smooth scrolling */
     html { scroll-behavior: smooth; }
     
-    /* Syntax highlighting for code blocks */
+    /* GitHub-style syntax highlighting for code blocks */
     .highlight { 
       position: relative;
-      background-color: rgb(249 250 251);
-      border: 1px solid rgb(229 231 235);
-      border-radius: 0.5rem;
+      background-color: #f6f8fa;
+      border: 1px solid #d1d9e0;
+      border-radius: 6px;
       overflow: hidden;
+      margin: 1rem 0;
     }
     .dark .highlight {
-      background-color: rgb(31 41 55);
-      border-color: rgb(75 85 99);
+      background-color: #0d1117;
+      border-color: #30363d;
     }
     .highlight pre { 
-      padding: 1rem;
+      padding: 16px;
       overflow-x: auto;
-      font-size: 0.875rem;
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 0;
+      background: transparent;
     }
     .highlight code { 
-      font-family: 'JetBrains Mono', monospace;
-      color: rgb(31 41 55);
-    }
-    .dark .highlight code {
-      color: rgb(229 231 235);
+      font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      font-size: inherit;
     }
     
-    /* Copy button for code blocks */
+    /* GitHub Light Theme Colors */
+    .highlight .token.comment,
+    .highlight .token.prolog,
+    .highlight .token.doctype,
+    .highlight .token.cdata {
+      color: #6a737d;
+      font-style: italic;
+    }
+    .highlight .token.punctuation {
+      color: #24292e;
+    }
+    .highlight .token.property,
+    .highlight .token.tag,
+    .highlight .token.boolean,
+    .highlight .token.number,
+    .highlight .token.constant,
+    .highlight .token.symbol,
+    .highlight .token.deleted {
+      color: #005cc5;
+    }
+    .highlight .token.selector,
+    .highlight .token.attr-name,
+    .highlight .token.string,
+    .highlight .token.char,
+    .highlight .token.builtin,
+    .highlight .token.inserted {
+      color: #032f62;
+    }
+    .highlight .token.operator,
+    .highlight .token.entity,
+    .highlight .token.url,
+    .language-css .token.string,
+    .style .token.string {
+      color: #d73a49;
+    }
+    .highlight .token.atrule,
+    .highlight .token.attr-value,
+    .highlight .token.keyword {
+      color: #d73a49;
+    }
+    .highlight .token.function,
+    .highlight .token.class-name {
+      color: #6f42c1;
+    }
+    .highlight .token.regex,
+    .highlight .token.important,
+    .highlight .token.variable {
+      color: #e36209;
+    }
+    
+    /* GitHub Dark Theme Colors */
+    .dark .highlight .token.comment,
+    .dark .highlight .token.prolog,
+    .dark .highlight .token.doctype,
+    .dark .highlight .token.cdata {
+      color: #8b949e;
+      font-style: italic;
+    }
+    .dark .highlight .token.punctuation {
+      color: #c9d1d9;
+    }
+    .dark .highlight .token.property,
+    .dark .highlight .token.tag,
+    .dark .highlight .token.boolean,
+    .dark .highlight .token.number,
+    .dark .highlight .token.constant,
+    .dark .highlight .token.symbol,
+    .dark .highlight .token.deleted {
+      color: #79c0ff;
+    }
+    .dark .highlight .token.selector,
+    .dark .highlight .token.attr-name,
+    .dark .highlight .token.string,
+    .dark .highlight .token.char,
+    .dark .highlight .token.builtin,
+    .dark .highlight .token.inserted {
+      color: #a5d6ff;
+    }
+    .dark .highlight .token.operator,
+    .dark .highlight .token.entity,
+    .dark .highlight .token.url,
+    .dark .language-css .token.string,
+    .dark .style .token.string {
+      color: #ff7b72;
+    }
+    .dark .highlight .token.atrule,
+    .dark .highlight .token.attr-value,
+    .dark .highlight .token.keyword {
+      color: #ff7b72;
+    }
+    .dark .highlight .token.function,
+    .dark .highlight .token.class-name {
+      color: #d2a8ff;
+    }
+    .dark .highlight .token.regex,
+    .dark .highlight .token.important,
+    .dark .highlight .token.variable {
+      color: #ffa657;
+    }
+    
+    /* Base text color for code */
+    .highlight code,
+    .highlight pre {
+      color: #24292e;
+    }
+    .dark .highlight code,
+    .dark .highlight pre {
+      color: #c9d1d9;
+    }
+    
+    /* GitHub-style copy button for code blocks */
     .copy-btn {
       position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      padding: 0.25rem 0.75rem;
-      font-size: 0.75rem;
-      background-color: white;
-      color: rgb(75 85 99);
-      border: 1px solid rgb(209 213 219);
-      border-radius: 0.375rem;
-      transition: all 0.2s;
+      top: 8px;
+      right: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 20px;
+      background-color: #f6f8fa;
+      color: #24292e;
+      border: 1px solid rgba(27,31,36,0.15);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
     }
     .copy-btn:hover {
-      background-color: rgb(249 250 251);
+      background-color: #f3f4f6;
+      border-color: rgba(27,31,36,0.15);
+      transform: translateY(-1px);
+      box-shadow: 0 1px 3px rgba(27,31,36,0.12);
     }
     .dark .copy-btn {
-      background-color: rgb(55 65 81);
-      color: rgb(209 213 219);
-      border-color: rgb(107 114 128);
+      background-color: #21262d;
+      color: #c9d1d9;
+      border-color: rgba(240,246,252,0.1);
     }
     .dark .copy-btn:hover {
-      background-color: rgb(75 85 99);
+      background-color: #30363d;
+      border-color: rgba(240,246,252,0.15);
     }
     .copy-btn.copied { 
-      background-color: rgb(220 252 231);
-      color: rgb(21 128 61);
-      border-color: rgb(134 239 172);
+      background-color: #dcfce7;
+      color: #166534;
+      border-color: #22c55e;
     }
     .dark .copy-btn.copied {
-      background-color: rgb(20 83 45);
-      color: rgb(134 239 172);
-      border-color: rgb(34 197 94);
+      background-color: #14532d;
+      color: #86efac;
+      border-color: #22c55e;
+    }
+    
+    /* Language label styling */
+    .highlight::before {
+      content: attr(data-language);
+      position: absolute;
+      top: 8px;
+      left: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #656d76;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+    .dark .highlight::before {
+      color: #7d8590;
+    }
+    .highlight[data-language=""]::before {
+      display: none;
     }
     
     /* Alert components */
