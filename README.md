@@ -177,13 +177,61 @@ sudo chmod 770  /data1 /data2 /data3 /data4
 ---
 
 ## Install Docker & Initialize Swarm
-```bash
-# Install Docker Engine via your distro method.
-# Initialize on the manager:
-sudo docker swarm init --advertise-addr <manager-ip>
 
-# On each worker node:
-sudo docker swarm join --token <token-from-init> <manager-ip>:2377
+These steps should be performed on all storage nodes (`minio1..4`).
+
+### 1) Create Sudo-Enabled Admin User
+
+First, create a dedicated user for administration on each storage node. This user will run `docker` commands without needing to be `root`.
+
+```bash
+# Replace 'user-minio-01' with your desired username for each node
+adduser user-minio-01
+passwd user-minio-01
+
+# Add the user to the 'wheel' group for sudo privileges
+usermod -aG wheel user-minio-01
+```
+
+### 2) Install Docker Engine
+
+Next, install Docker Engine using the official repositories. This ensures you get the latest stable version.
+
+```bash
+# Remove any old Docker versions (optional but recommended)
+sudo dnf -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine || true
+
+# Add the Docker CE repository
+sudo dnf install -y yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+# Install Docker packages
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Enable and start the Docker service
+sudo systemctl enable --now docker
+sudo systemctl status docker
+
+# Add your admin user to the 'docker' group to run Docker commands without sudo
+# Replace 'user-minio-01' with the username you created
+sudo usermod -aG docker user-minio-01
+
+# A reboot is required for the group changes to take full effect
+echo "Reboot required. Please run 'sudo reboot' and log back in as the new user."
+```
+
+> **Important:** After rebooting, log in as the new user (e.g., `user-minio-01`) for all subsequent steps. You should be able to run `docker` commands without `sudo`.
+
+### 3) Initialize Swarm
+
+Once Docker is running on all nodes, initialize the Swarm on your designated manager node and join the workers.
+
+```bash
+# On the manager node (e.g., minio1):
+docker swarm init --advertise-addr <manager-ip>
+
+# On each worker node (e.g., minio2, minio3, minio4):
+docker swarm join --token <token-from-init> <manager-ip>:2377
 ```
 
 ---
