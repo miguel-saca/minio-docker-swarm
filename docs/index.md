@@ -298,7 +298,7 @@ x-minio-common: &minio-common
   networks: [minio_net]
   environment:
     # URL S3 Public (for clients and pre-signed URLs)
-    MINIO_SERVER_URL: "https://example.com/minio/"
+    MINIO_SERVER_URL: "https://example.com/minio/s3/"
     # URL console public
     MINIO_BROWSER_REDIRECT_URL: "https://example.com/minio/ui/"
     MINIO_ROOT_USER_FILE: /run/secrets/minio_root_user
@@ -467,48 +467,83 @@ sudo chmod 640 /etc/nginx/tls/*
 Expose S3 at `/` and Console at `/minio/ui` (or use a dedicated subdomain for the Console).
 
 ```nginx
+# ─────────── Global Directives ───────────
+# For WebSocket support
+map $http_upgrade $connection_upgrade { 
+    default upgrade; 
+    ''      close; 
+}
+
+# Allow underscores in headers for S3 compatibility
+underscores_in_headers on;
+
+# ─────────── Upstreams ───────────
 upstream minio_s3 {
-  least_conn;
-  server minio1:9000; server minio2:9000; server minio3:9000; server minio4:9000;
+    least_conn;
+    server minio1:9000 max_fails=3 fail_timeout=10s;
+    server minio2:9000 max_fails=3 fail_timeout=10s;
+    server minio3:9000 max_fails=3 fail_timeout=10s;
+    server minio4:9000 max_fails=3 fail_timeout=10s;
+    keepalive 64;
 }
+
 upstream minio_console {
-  least_conn;
-  server minio1:9001; server minio2:9001; server minio3:9001; server minio4:9001;
+    least_conn;
+    server minio1:9001 max_fails=3 fail_timeout=10s;
+    server minio2:9001 max_fails=3 fail_timeout=10s;
+    server minio3:9001 max_fails=3 fail_timeout=10s;
+    server minio4:9001 max_fails=3 fail_timeout=10s;
+    keepalive 32;
 }
 
+# ─────────── HTTP → HTTPS ───────────
 server {
-  listen 443 ssl http2;
-  server_name minio.example.net;
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+    return 301 https://$host$request_uri;
+}
 
-  # ssl_certificate     /etc/letsencrypt/live/minio.example.net/fullchain.pem;
-  # ssl_certificate_key /etc/letsencrypt/live/minio.example.net/privkey.pem;
+# ─────────── HTTPS Server ───────────
+server {
+    listen 443 ssl http2;
+    server_name minio.example.com;
 
-  client_max_body_size 0;
-  proxy_buffering off; proxy_request_buffering off;
+    # ssl_certificate     /etc/letsencrypt/live/minio.example.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/minio.example.net/privkey.pem;
 
-  location / {
-    proxy_set_header Host $http_host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_http_version 1.1;
-    proxy_set_header Connection "";
-    chunked_transfer_encoding off;
-    proxy_pass http://minio_s3;
-  }
+    client_max_body_size 0;
+    proxy_buffering off;
+    proxy_request_buffering off;
 
-  location /minio/ui/ {
-    rewrite ^/minio/ui/(.*) /$1 break;
-    proxy_set_header Host $http_host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-    chunked_transfer_encoding off;
-    proxy_pass http://minio_console;
-  }
+    location /minio/s3/ {
+        rewrite ^/minio/s3/(.*) /$1 break;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        chunked_transfer_encoding off;
+        proxy_pass http://minio_s3;
+    }
+
+    location /minio/ui/ {
+        rewrite ^/minio/ui/(.*) /$1 break;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        chunked_transfer_encoding off;
+        proxy_pass http://minio_console;
+    }
+
+    location / {
+        return 308 /minio/ui/;  # Use 302 if you prefer temporary during testing.
+    }
 }
 ```
 
