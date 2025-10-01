@@ -293,96 +293,90 @@ Now, save the following content as `/opt/minio/minio-stack.yml`.
 version: "3.9"
 
 x-minio-common: &minio-common
-  image: quay.io/minio/minio:RELEASE.YYYY-MM-DDThh-mm-ssZ  # Pin a specific release
+  image: quay.io/minio/minio:RELEASE.YYYY-MM-DDThh-mm-ssZ
   networks: [minio_net]
   environment:
-    MINIO_ROOT_USER_FILE:     /run/secrets/minio_root_user
+    # URL S3 Public (for clients and pre-signed URLs)
+    MINIO_SERVER_URL: "https://example.com/minio/"
+    # URL console public
+    MINIO_BROWSER_REDIRECT_URL: "https://example.com/minio/ui/"
+    MINIO_ROOT_USER_FILE: /run/secrets/minio_root_user
     MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_root_password
   secrets:
     - minio_root_user
     - minio_root_password
   ulimits:
-    nofile:
-      soft: 65536
-      hard: 65536
+    nofile: { soft: 65536, hard: 65536 }
+  stop_grace_period: 1m
   healthcheck:
-    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    test: ["CMD-SHELL", "curl -fsS 'http://localhost:9000/minio/health/live' || exit 1"]
     interval: 30s
-    timeout: 20s
+    timeout: 10s
     retries: 3
-  # Cluster spans 4 nodes × 4 disks per node
   command: >
-    server --console-address ":9001"
+    minio server --console-address ":9001"
     http://minio{1...4}/data{1...4}
+  volumes:
+    - /data1:/data1
+    - /data2:/data2
+    - /data3:/data3
+    - /data4:/data4
+  ports:
+    - target: 9000
+      published: 9000
+      protocol: tcp
+      mode: host
+    - target: 9001
+      published: 9001
+      protocol: tcp
+      mode: host
+
 
 services:
   minio1:
     <<: *minio-common
     hostname: minio1
-    volumes:
-      - /data1:/data1
-      - /data2:/data2
-      - /data3:/data3
-      - /data4:/data4
     deploy:
       placement:
-        constraints:
-          - node.labels.minio.id == 1
-      update_config:
-        parallelism: 1
-        order: start-first
+        constraints: [ "node.labels.minio.id == 1" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
 
   minio2:
     <<: *minio-common
     hostname: minio2
-    volumes:
-      - /data1:/data1
-      - /data2:/data2
-      - /data3:/data3
-      - /data4:/data4
     deploy:
       placement:
-        constraints:
-          - node.labels.minio.id == 2
-      update_config:
-        parallelism: 1
-        order: start-first
+        constraints: [ "node.labels.minio.id == 2" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
 
   minio3:
     <<: *minio-common
     hostname: minio3
-    volumes:
-      - /data1:/data1
-      - /data2:/data2
-      - /data3:/data3
-      - /data4:/data4
     deploy:
       placement:
-        constraints:
-          - node.labels.minio.id == 3
-      update_config:
-        parallelism: 1
-        order: start-first
+        constraints: [ "node.labels.minio.id == 3" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
 
   minio4:
     <<: *minio-common
     hostname: minio4
-    volumes:
-      - /data1:/data1
-      - /data2:/data2
-      - /data3:/data3
-      - /data4:/data4
     deploy:
       placement:
-        constraints:
-          - node.labels.minio.id == 4
-      update_config:
-        parallelism: 1
-        order: start-first
+        constraints: [ "node.labels.minio.id == 4" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
 
 networks:
   minio_net:
     external: true
+
 
 secrets:
   minio_root_user:
