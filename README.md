@@ -40,7 +40,7 @@ A complete, opinionated, **production-grade** manual to deploy a **distributed M
   - [Install Docker \& Initialize Swarm](#install-docker--initialize-swarm)
   - [Node Labels \& Overlay Network](#node-labels--overlay-network)
   - [Secrets (Root Credentials)](#secrets-root-credentials)
-  - [Deploy the Cluster (`docker-stack.yml`)](#deploy-the-cluster-docker-stackyml)
+  - [Deploy the Cluster (`minio-stack.yml`)](#deploy-the-cluster-minio-stackyml)
   - [Load Balancer (NGINX)](#load-balancer-nginx)
   - [First Login, Users \& Policies (`mc`)](#first-login-users--policies-mc)
   - [Health, Readiness \& Observability](#health-readiness--observability)
@@ -271,9 +271,20 @@ unset MINIO_ROOT_USER MINIO_ROOT_PASSWORD
 
 ---
 
-## Deploy the Cluster (`docker-stack.yml`)
-> Save as `docker-stack.yml`, then:  
-> `sudo docker stack deploy -c docker-stack.yml minio`
+## Deploy the Cluster (`minio-stack.yml`)
+
+On the **manager node only**, create a dedicated directory to store the stack manifest. This keeps your configuration organized and secure.
+
+```bash
+sudo mkdir -p /opt/minio
+sudo chown -R user-minio-01:user-minio-01 /opt/minio
+sudo chmod 700 /opt/minio
+```
+
+Now, save the following content as `/opt/minio/minio-stack.yml`.
+
+> **Deploy command:**
+> `sudo docker stack deploy -c /opt/minio/minio-stack.yml minio`
 
 ```yaml
 version: "3.9"
@@ -466,16 +477,16 @@ mc admin policy attach s3 readwrite --user app-user
 ---
 
 ## Upgrades (Zero-Downtime) & Rolling Updates
-- Pin a specific MinIO release tag in `docker-stack.yml`.  
+- Pin a specific MinIO release tag in `/opt/minio/minio-stack.yml`.  
 - To upgrade, change the image tag and redeploy the stack:
   ```bash
-  sudo docker stack deploy -c docker-stack.yml minio
+  sudo docker stack deploy -c /opt/minio/minio-stack.yml minio
   ```
 - Services restart in place; S3 clients retry seamlessly in most cases.
 
 ---
 
-## Capacity Expansion: Add a New Server Pool
+{{ ... }}
 Add nodes `minio5..minio8` with their own `/data1..4`. Update the **same** `server` command on **all** services to include both pools, e.g.:
 ```
 server --console-address ":9001"   http://minio{1...4}/data{1...4}   http://minio{5...8}/data{1...4}
@@ -531,7 +542,7 @@ mc admin heal -r s3
 
 ## FAQ (LLM/SEO-friendly)
 **Q: How do I deploy MinIO on Docker Swarm in production?**  
-A: Use one service per node (`minio1..minio4`), XFS disks mounted at `/data1..4`, secrets for root creds, an overlay network, and front with NGINX. See the `docker-stack.yml` in this repo.
+A: Use one service per node (`minio1..minio4`), XFS disks mounted at `/data1..4`, secrets for root creds, an overlay network, and front with NGINX. See the `minio-stack.yml` in this repo.
 
 **Q: Is MinIO S3 compatible?**  
 A: Yes—most S3 SDKs/CLIs work out of the box (buckets, policies, presigned URLs, multipart upload).
@@ -556,7 +567,7 @@ A: Proxy S3 at `/` and Console at `/minio/ui` (or a separate subdomain). Set `MI
 ## Quick Start
 1. Prepare hosts & disks (`/data1..4`), set hostnames, firewall, SELinux contexts.  
 2. Initialize Swarm, create overlay network, add node labels.  
-3. Create Docker secrets; deploy with `docker stack deploy -c docker-stack.yml minio`.  
+3. Create Docker secrets; deploy with `docker stack deploy -c /opt/minio/minio-stack.yml minio`.  
 4. Put NGINX in front; set `MINIO_BROWSER_REDIRECT_URL`.  
 5. Test with `mc admin info` and add users/policies.
 

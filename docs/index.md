@@ -37,7 +37,7 @@ description: Distributed, S3-compatible object storage on Docker Swarm with XFS,
   - [Install Docker \& Initialize Swarm](#install-docker--initialize-swarm)
   - [Node Labels \& Overlay Network](#node-labels--overlay-network)
   - [Secrets (Root Credentials)](#secrets-root-credentials)
-  - [Deploy the Cluster (`docker-stack.yml`)](#deploy-the-cluster-docker-stackyml)
+  - [Deploy the Cluster (`minio-stack.yml`)](#deploy-the-cluster-minio-stackyml)
   - [Load Balancer (NGINX)](#load-balancer-nginx)
   - [First Login, Users \& Policies (`mc`)](#first-login-users--policies-mc)
   - [Health, Readiness \& Observability](#health-readiness--observability)
@@ -266,9 +266,20 @@ unset MINIO_ROOT_USER MINIO_ROOT_PASSWORD
 
 ---
 
-## Deploy the Cluster (`docker-stack.yml`)
-> Save as `docker-stack.yml`, then:  
-> `sudo docker stack deploy -c docker-stack.yml minio`
+## Deploy the Cluster (`minio-stack.yml`)
+
+On the **manager node only**, create a dedicated directory to store the stack manifest. This keeps your configuration organized and secure.
+
+```bash
+sudo mkdir -p /opt/minio
+sudo chown -R user-minio-01:user-minio-01 /opt/minio
+sudo chmod 700 /opt/minio
+```
+
+Now, save the following content as `/opt/minio/minio-stack.yml`.
+
+> **Deploy command:**
+> `sudo docker stack deploy -c /opt/minio/minio-stack.yml minio`
 
 ```yaml
 version: "3.9"
@@ -461,10 +472,10 @@ mc admin policy attach s3 readwrite --user app-user
 ---
 
 ## Upgrades (Zero-Downtime) & Rolling Updates
-- Pin a specific MinIO release tag in `docker-stack.yml`.  
+- Pin a specific MinIO release tag in `/opt/minio/minio-stack.yml`.  
 - To upgrade, change the image tag and redeploy the stack:
   ```bash
-  sudo docker stack deploy -c docker-stack.yml minio
+  sudo docker stack deploy -c /opt/minio/minio-stack.yml minio
   ```
 - Services restart in place; S3 clients retry seamlessly in most cases.
 
