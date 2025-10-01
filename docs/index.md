@@ -39,6 +39,7 @@ description: Distributed, S3-compatible object storage on Docker Swarm with XFS,
   - [Node Labels \& Overlay Network](#node-labels--overlay-network)
   - [Secrets (Root Credentials)](#secrets-root-credentials)
   - [Deploy the Cluster (`minio-stack.yml`)](#deploy-the-cluster-minio-stackyml)
+  - [Load Balancer Node Setup (NGINX)](#load-balancer-node-setup-nginx)
   - [Load Balancer (NGINX)](#load-balancer-nginx)
   - [First Login, Users \& Policies (`mc`)](#first-login-users--policies-mc)
   - [Health, Readiness \& Observability](#health-readiness--observability)
@@ -388,6 +389,77 @@ secrets:
 **Why this layout?**  
 - The `command` enumerates all nodes and disks: `http://minio{1...4}/data{1...4}`.  
 - One service per node ensures stable names (`minio1..4`), simplifies ops, and supports adding a **Pool 2** later (`minio5..8`) without redesign.
+
+---
+
+## Load Balancer Node Setup (NGINX)
+
+These steps apply **only to the Load Balancer (LB) node**.
+
+### 1) Install NGINX & Configure SELinux
+
+Install NGINX and allow it to make network connections, which is required for proxying traffic to the MinIO backend.
+
+```bash
+sudo dnf -y install nginx
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+### 2) Open Firewall Ports
+
+Allow public traffic on standard HTTP and HTTPS ports.
+
+```bash
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload
+```
+
+### 3) Create Admin User & Set Hostname
+
+Set a unique hostname and create a dedicated admin user for the LB node.
+
+```bash
+sudo hostnamectl set-hostname minio-lb
+adduser user-minio-lb
+passwd user-minio-lb
+usermod -aG wheel user-minio-lb
+```
+
+### 4) TLS Certificate Setup
+
+Choose one of the following two options to secure your NGINX proxy.
+
+#### Option A: Let's Encrypt with Certbot (Recommended)
+
+This is the preferred method for obtaining and managing free, trusted TLS certificates.
+
+```bash
+# Install Certbot for NGINX
+sudo dnf -y install certbot python3-certbot-nginx
+
+# Obtain and install a certificate (this will also update your NGINX config)
+sudo certbot --nginx -d minio.example.com
+```
+
+#### Option B: Manual Certificate Installation
+
+Use this method if you have a commercial or self-signed certificate. Place your certificate and private key in the specified directory.
+
+```bash
+# Create a directory for TLS certificates
+sudo mkdir -p /etc/nginx/tls
+
+# Set secure ownership and permissions
+sudo chown root:nginx /etc/nginx/tls
+sudo chmod 750 /etc/nginx/tls
+
+# Copy your certificate and key, then set permissions
+# sudo cp /path/to/your/fullchain.pem /etc/nginx/tls/
+# sudo cp /path/to/your/privkey.pem /etc/nginx/tls/
+sudo chown root:nginx /etc/nginx/tls/*
+sudo chmod 640 /etc/nginx/tls/*
+```
 
 ---
 
