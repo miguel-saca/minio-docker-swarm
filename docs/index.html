@@ -132,11 +132,11 @@
     </svg>
   </button>
 
-  <!-- Desktop Version Badge (hidden on mobile) -->
-  <div class="hidden md:fixed md:top-4 md:left-1/2 md:transform md:-translate-x-1/2 px-3 py-2 text-xs font-mono bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
+  <!-- Desktop Version Badge (visible on md+ screens only) -->
+  <div class="hidden md:block md:fixed md:top-4 md:left-1/2 md:transform md:-translate-x-1/2 px-3 py-2 text-xs font-mono bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50">
     <div class="flex items-center space-x-2">
-      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-      <span>RELEASE.2025-09-07T16-13-09Z</span>
+      <div class="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+      <span class="font-medium">RELEASE.2025-09-07T16-13-09Z</span>
     </div>
   </div>
 
@@ -164,12 +164,12 @@
           <li><a href="#appendix-handy-commands" class="sidebar-link block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-custom-blue-600 dark:hover:text-custom-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">Appendix: Handy Commands</a></li>
         </ul>
         
-        <!-- Mobile Version Badge (footer in sidebar, only visible on mobile) -->
-        <div class="md:hidden mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div class="px-3 py-2 text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg">
+        <!-- Mobile Version Badge (footer in sidebar, visible on small screens only) -->
+        <div class="block md:hidden mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="px-3 py-2 text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg">
             <div class="flex items-center space-x-2">
-              <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-              <span>RELEASE.2025-09-07T16-13-09Z</span>
+              <div class="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+              <span class="font-medium">RELEASE.2025-09-07T16-13-09Z</span>
             </div>
           </div>
         </div>
