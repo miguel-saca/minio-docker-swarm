@@ -444,7 +444,7 @@ This is the preferred method for obtaining and managing free, trusted TLS certif
 sudo dnf -y install certbot python3-certbot-nginx
 
 # Obtain and install a certificate (this will also update your NGINX config)
-sudo certbot --nginx -d minio.example.com
+sudo certbot --nginx -d example.com
 ```
 
 #### Option B: Manual Certificate Installation
@@ -512,10 +512,10 @@ server {
 # ─────────── HTTPS Server ───────────
 server {
     listen 443 ssl http2;
-    server_name minio.example.com;
+    server_name example.com;
 
-    # ssl_certificate     /etc/letsencrypt/live/minio.example.com/fullchain.pem;
-    # ssl_certificate_key /etc/letsencrypt/live/minio.example.net/privkey.pem;
+    # ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/example.net/privkey.pem;
 
     client_max_body_size 0;
     proxy_buffering off;
@@ -555,7 +555,7 @@ server {
 Set for your services:
 ```bash
 # Console redirect when proxied under /minio/ui
-export MINIO_BROWSER_REDIRECT_URL="https://minio.example.net/minio/ui"
+export MINIO_BROWSER_REDIRECT_URL="https://example.net/minio/ui"
 ```
 
 ---
