@@ -1,0 +1,473 @@
+/**
+ * Custom CSS for MinIO Docker Swarm Documentation
+ * Production-ready styles with clean code principles
+ */
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ========================================
+   CODE BLOCKS AND SYNTAX HIGHLIGHTING
+   ======================================== */
+
+.highlight {
+  position: relative;
+  background-color: #f6f8fa;
+  border: 1px solid #d1d9e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.dark .highlight {
+  background-color: #0d1117;
+  border-color: #30363d;
+}
+
+.highlight pre {
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 0;
+  background: transparent;
+}
+
+.highlight code {
+  font-family: 'JetBrains Mono', monospace;
+  background: transparent;
+}
+
+/* ========================================
+   COPY BUTTON STYLES
+   ======================================== */
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background-color: #f6f8fa;
+  color: #24292e;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark .copy-btn {
+  background-color: #21262d;
+  color: #c9d1d9;
+}
+
+/* ========================================
+   ALERT COMPONENTS
+   ======================================== */
+
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.alert.info {
+  background-color: rgb(239 246 255);
+  border: 1px solid rgb(191 219 254);
+  color: rgb(30 64 175);
+}
+
+.dark .alert.info {
+  background-color: rgb(30 58 138 / 0.2);
+  border-color: rgb(30 64 175);
+  color: rgb(191 219 254);
+}
+
+.alert.warning {
+  background-color: rgb(255 251 235);
+  border: 1px solid rgb(251 191 36);
+  color: rgb(180 83 9);
+}
+
+.dark .alert.warning {
+  background-color: rgb(180 83 9 / 0.2);
+  border-color: rgb(180 83 9);
+  color: rgb(251 191 36);
+}
+
+/* ========================================
+   CONTENT AREA TYPOGRAPHY
+   ======================================== */
+
+.content-area h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 2rem 0 1rem;
+}
+
+.content-area h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+}
+
+.content-area h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.content-area h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.content-area p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.content-area ul,
+.content-area ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.content-area li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.content-area code:not(.highlight code) {
+  background-color: rgb(249 250 251);
+  color: rgb(239 68 68);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.dark .content-area code:not(.highlight code) {
+  background-color: rgb(55 65 81);
+  color: rgb(248 113 113);
+}
+
+.content-area blockquote {
+  border-left: 4px solid rgb(209 213 219);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: rgb(107 114 128);
+}
+
+.dark .content-area blockquote {
+  border-left-color: rgb(75 85 99);
+  color: rgb(156 163 175);
+}
+
+/* ========================================
+   DARK MODE TEXT RENDERING FIXES
+   ======================================== */
+
+.dark .highlight pre code,
+.dark .highlight code,
+.dark pre[class*="language-"] code[class*="language-"] {
+  text-shadow: none !important;
+}
+
+.dark code,
+.dark pre code,
+.dark .token {
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========================================
+   GITHUB-STYLE SYNTAX HIGHLIGHTING - LIGHT THEME
+   ======================================== */
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #6a737d;
+}
+
+.token.punctuation {
+  color: #24292e;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #22863a;
+}
+
+.token.boolean,
+.token.number {
+  color: #005cc5;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #032f62;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+  color: #e36209;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+  color: #6f42c1;
+}
+
+.token.keyword {
+  color: #d73a49;
+}
+
+.token.regex,
+.token.important {
+  color: #e36209;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+/* ========================================
+   GITHUB-STYLE SYNTAX HIGHLIGHTING - DARK THEME
+   ======================================== */
+
+.dark .token.comment,
+.dark .token.prolog,
+.dark .token.doctype,
+.dark .token.cdata {
+  color: #8b949e;
+}
+
+.dark .token.punctuation {
+  color: #c9d1d9;
+}
+
+.dark .token.property,
+.dark .token.tag,
+.dark .token.constant,
+.dark .token.symbol,
+.dark .token.deleted {
+  color: #7ee787;
+}
+
+.dark .token.boolean,
+.dark .token.number {
+  color: #79c0ff;
+}
+
+.dark .token.selector,
+.dark .token.attr-name,
+.dark .token.string,
+.dark .token.char,
+.dark .token.builtin,
+.dark .token.inserted {
+  color: #a5d6ff;
+}
+
+.dark .token.operator,
+.dark .token.entity,
+.dark .token.url,
+.dark .language-css .token.string,
+.dark .style .token.string,
+.dark .token.variable {
+  color: #ffa657;
+}
+
+.dark .token.atrule,
+.dark .token.attr-value,
+.dark .token.function,
+.dark .token.class-name {
+  color: #d2a8ff;
+}
+
+.dark .token.keyword {
+  color: #ff7b72;
+}
+
+.dark .token.regex,
+.dark .token.important {
+  color: #ffa657;
+}
+
+.dark .token.important,
+.dark .token.bold {
+  font-weight: bold;
+}
+
+.dark .token.italic {
+  font-style: italic;
+}
+
+/* ========================================
+   CODE TEXT CONTRAST
+   ======================================== */
+
+.highlight pre code {
+  color: #24292e;
+}
+
+.dark .highlight pre code {
+  color: #c9d1d9;
+}
+
+.dark .token {
+  color: #c9d1d9;
+}
+
+/* ========================================
+   MINIO LOGO STYLING
+   ======================================== */
+
+.minio-logo {
+  color: #cf163e; /* MinIO red for light theme */
+  transition: color 0.2s ease;
+}
+
+.dark .minio-logo {
+  color: #f9fafb; /* Ivory white for dark theme */
+}
+
+.minio-logo:hover {
+  opacity: 0.8;
+}
+
+/* ========================================
+   SIDEBAR LINK STYLES
+   ======================================== */
+
+.sidebar-link {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: rgb(55 65 81);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.dark .sidebar-link {
+  color: rgb(209 213 219);
+}
+
+.sidebar-link:hover {
+  color: #1971c2;
+  background-color: rgb(243 244 246);
+}
+
+.dark .sidebar-link:hover {
+  color: #74c0fc;
+  background-color: rgb(55 65 81);
+}
+
+.sidebar-link.active {
+  color: #1971c2;
+  background-color: rgb(239 246 255);
+  font-weight: 500;
+}
+
+.dark .sidebar-link.active {
+  color: #74c0fc;
+  background-color: rgb(30 58 138 / 0.2);
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES
+   ======================================== */
+
+@media (max-width: 768px) {
+  .content-area h1 {
+    font-size: 1.875rem;
+  }
+  
+  .content-area h2 {
+    font-size: 1.5rem;
+  }
+  
+  .content-area h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus styles for better keyboard navigation */
+.sidebar-link:focus,
+button:focus {
+  outline: 2px solid #1971c2;
+  outline-offset: 2px;
+}
+
+.dark .sidebar-link:focus,
+.dark button:focus {
+  outline-color: #74c0fc;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .sidebar-link:hover {
+    background-color: rgb(229 231 235);
+  }
+  
+  .dark .sidebar-link:hover {
+    background-color: rgb(75 85 99);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
