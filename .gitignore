@@ -42,27 +42,7 @@ pnpm-debug.log*
 __pycache__/
 *.pyc
 
-# Jekyll (GitHub Pages)
-_site/
-.sass-cache/
-.jekyll-cache/
-.jekyll-metadata
-.bundle/
-vendor/
-
-# Ruby lockfile (optional for Jekyll local builds; generally not needed here)
-Gemfile.lock
-
-# Docker Compose overrides
-docker-compose.override.yml
-
 # Archives
 *.tar
 *.tar.gz
 *.zip
-
-_site/
-docs/vendor/
-docs/Gemfile.lock
-tests/
-Gemfile

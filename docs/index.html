@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Distributed, S3-compatible object storage on Docker Swarm with XFS, erasure coding, NGINX, secrets, health checks, metrics, and zero-downtime upgrades.">
+  
+  <title>MinIO on Docker Swarm — Production Guide</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="data:image/png;base64,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">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link id="prism-theme" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+  <!-- Font Preloading for Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+            'mono': ['JetBrains Mono', 'ui-monospace', 'monospace']
+          },
+          colors: {
+            'custom-blue': {
+              500: '#1c7ed6',
+              600: '#1971c2',
+              300: '#74c0fc'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- External Stylesheets -->
+  <link rel="stylesheet" href="assets/css/custom.css">
+  
+  <!-- External JavaScript -->
+  <script src="assets/js/main.js" defer></script>
+</head>
+
+<body class="font-sans bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+  <!-- Skip to main content for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-blue-600 text-white p-2 rounded">Skip to main content</a>
+
+  <!-- Mobile Sidebar Toggle -->
+  <button 
+    id="sidebar-toggle" 
+    class="fixed top-4 right-4 p-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg transition-all duration-200 z-50 md:hidden" 
+    aria-label="Toggle navigation menu"
+    aria-expanded="false"
+    aria-controls="sidebar">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
+  <!-- Theme Toggle -->
+  <button 
+    id="theme-toggle" 
+    class="fixed bottom-6 right-6 p-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full shadow-lg transition-all duration-200 z-50" 
+    aria-label="Toggle between light and dark theme">
+    <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+    </svg>
+    <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+    </svg>
+  </button>
+
+  <!-- Desktop Version Badge (visible on md+ screens only) -->
+  <div class="hidden md:block md:fixed md:top-4 md:left-1/2 md:transform md:-translate-x-1/2 px-3 py-2 text-xs font-mono bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50">
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+      <span class="font-medium">RELEASE.2025-09-07T16-13-09Z</span>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen pt-0">
+    <!-- Navigation Sidebar -->
+    <aside 
+      id="sidebar" 
+      class="fixed md:sticky top-0 left-0 h-screen w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out"
+      role="navigation"
+      aria-label="Main navigation">
+      <nav class="h-full flex flex-col p-6">
+        <!-- Site Header -->
+        <header class="mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
+          <a href="#main-content" class="flex items-center space-x-3 group" aria-label="MinIO Docker Swarm Production Guide - Go to main content">
+            <div class="flex-shrink-0">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="32" 
+                height="18" 
+                viewBox="0 0 106 18" 
+                fill="none" 
+                class="minio-logo"
+                aria-hidden="true">
+                <path d="M40.6149 0.304199H34.7266V17.6899H40.6149V0.304199Z" fill="currentColor"></path>
+                <path d="M27.4597 0.241986L15.5093 7.53878C15.3418 7.64426 15.1246 7.64426 14.9571 7.53878L3.00672 0.241986C2.75233 0.0868666 2.4545 0 2.15047 0H2.13806C1.23216 0 0.5 0.732161 0.5 1.63806V17.3671H6.38211V9.88418C6.38211 9.42503 6.88469 9.13961 7.27559 9.38159L13.9705 13.4767C14.6282 13.88 15.4597 13.8862 16.1236 13.4953L23.1908 9.35057C23.5817 9.12099 24.0781 9.40641 24.0781 9.85936V17.3671H29.9602V1.63806C29.9602 0.732161 29.228 0 28.3221 0H28.3097C28.0057 0 27.7141 0.0806618 27.4535 0.241986" fill="currentColor"></path>
+                <path d="M69.9642 0.304199H63.9953V8.21526C63.9953 8.66201 63.5237 8.94122 63.1328 8.73646L47.6581 0.496547C47.4224 0.372452 47.1556 0.304199 46.8887 0.304199H46.8763C45.9704 0.304199 45.2383 1.03636 45.2383 1.94226V17.6713H51.1576V9.76645C51.1576 9.32592 51.6292 9.0405 52.0201 9.24525L67.5506 17.4852C67.7864 17.6093 68.0532 17.6775 68.32 17.6775C69.2259 17.6775 69.958 16.9454 69.958 16.0395V0.304199H69.9642Z" fill="currentColor"></path>
+                <path d="M77.3013 0.304199H74.5898V17.6899H77.3013V0.304199Z" fill="currentColor"></path>
+                <path d="M93.242 18C85.9576 18 80.7891 14.544 80.7891 9.0031C80.7891 3.46225 85.9824 0 93.242 0C100.502 0 105.726 3.45605 105.726 8.9969C105.726 14.5377 100.619 17.9938 93.242 17.9938M93.242 2.30196C87.8253 2.30196 83.6495 4.66598 83.6495 8.9969C83.6495 13.3278 87.8253 15.6918 93.242 15.6918C98.6588 15.6918 102.866 13.3588 102.866 8.9969C102.866 4.63495 98.665 2.30196 93.242 2.30196Z" fill="currentColor"></path>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h1 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-200">MinIO Docker Swarm</h1>
+              <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Production Guide</p>
+            </div>
+          </a>
+        </header>
+        
+        <!-- Table of Contents -->
+        <ul class="space-y-1" role="list">
+          <li><a href="#architecture-overview" class="sidebar-link">Architecture Overview</a></li>
+          <li><a href="#global-host-configuration-all-nodes" class="sidebar-link">Global Host Configuration</a></li>
+          <li><a href="#requirements--sizing" class="sidebar-link">Requirements & Sizing</a></li>
+          <li><a href="#prepare-disks-xfs-and-mounts-data14" class="sidebar-link">Prepare Disks (XFS)</a></li>
+          <li><a href="#install-docker--initialize-swarm" class="sidebar-link">Install Docker & Swarm</a></li>
+          <li><a href="#node-labels--overlay-network" class="sidebar-link">Node Labels & Network</a></li>
+          <li><a href="#secrets-root-credentials" class="sidebar-link">Secrets (Root Credentials)</a></li>
+          <li><a href="#deploy-the-cluster-minio-stackyml" class="sidebar-link">Deploy the Cluster</a></li>
+          <li><a href="#load-balancer-node-setup-nginx" class="sidebar-link">Load Balancer Node Setup</a></li>
+          <li><a href="#load-balancer-nginx" class="sidebar-link">Load Balancer (NGINX)</a></li>
+          <li><a href="#connecting-and-managing-with-minio-client-mc" class="sidebar-link">MinIO Client (mc)</a></li>
+          <li><a href="#health-readiness--observability" class="sidebar-link">Health & Observability</a></li>
+          <li><a href="#upgrades-zero-downtime--rolling-updates" class="sidebar-link">Upgrades & Rolling Updates</a></li>
+          <li><a href="#capacity-expansion-add-a-new-server-pool" class="sidebar-link">Capacity Expansion</a></li>
+          <li><a href="#security-hardening-checklist" class="sidebar-link">Security Hardening</a></li>
+          <li><a href="#troubleshooting" class="sidebar-link">Troubleshooting</a></li>
+          <li><a href="#appendix-handy-commands" class="sidebar-link">Appendix: Handy Commands</a></li>
+        </ul>
+        
+        <!-- Mobile Version Badge (footer in sidebar, visible on small screens only) -->
+        <div class="block md:hidden mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="px-3 py-2 text-xs font-mono bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg">
+            <div class="flex items-center space-x-2">
+              <div class="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+              <span class="font-medium">RELEASE.2025-09-07T16-13-09Z</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 md:ml-0 min-w-0" role="main">
+      <div class="max-w-4xl mx-auto px-6 py-8 pb-20">
+        <article class="content-area text-gray-900 dark:text-gray-100">
+          <header class="mb-8">
+            <h1 class="text-4xl font-bold mb-4">MinIO on Docker Swarm — Production Guide</h1>
+            
+            <div class="alert info" role="note">
+              <p>This site mirrors the repository's manual and is optimized for SEO. You can also read the single-file guide in the repo root: <strong>README-minio-swarm.md</strong>.</p>
+            </div>
+          </header>
+
+          <section class="mb-12">
+            <h2 class="text-3xl font-semibold mb-6">Production-Ready MinIO on Docker Swarm (Distributed / Multi-Node)</h2>
+
+          <p><em>A complete, opinionated guide aligned with MinIO production practices—now using <code>/data1</code>, <code>/data2</code>, … paths and including a universal host configuration checklist (hostnames, users, firewall, etc.).</em></p>
+
+          <blockquote cite="#" class="pl-4 border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-r-lg">
+            <p><strong>Reference topology</strong> (adjust as needed):<br>
+            4 storage nodes (<code>10.10.13.51–54</code>) + 1 load balancer (<code>10.10.13.55</code>).<br>
+            Each storage node has 4 XFS volumes mounted at <code>/data1</code>, <code>/data2</code>, <code>/data3</code>, <code>/data4</code>.</p>
+          </blockquote>
+
+          <hr>
+
+          <section id="architecture-overview" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Architecture Overview</h2>
+            <ul class="space-y-2">
+              <li><strong>Distributed MinIO</strong> across nodes and disks with erasure coding. You'll deploy <strong>one service per node</strong> (<code>minio1..minio4</code>) for stable addressing and easier ops.</li>
+              <li><strong>Server pools</strong> support online capacity expansion; plan consistent disk sizes within a pool.</li>
+              <li>An external <strong>L4/L7 load balancer</strong> (NGINX shown) fronts S3 API (port 9000) and the Console (port 9001).</li>
+            </ul>
+          </section>
+
+          <hr>
+
+          <h2 id="global-host-configuration-all-nodes">Global Host Configuration (All Nodes)</h2>
+          <p>Do this on <strong>every storage node</strong> and the <strong>load balancer</strong> before deploying.</p>
+
+          <h3>1) Update All Packages</h3>
+          <p>First, ensure all system packages are up-to-date. This minimizes potential conflicts and security vulnerabilities.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo dnf upgrade -y</code></pre>
+          </div>
+
+          <h3>2) Set hostnames (consistent naming)</h3>
+          <p>On each node:</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Replace N with 1..4 on storage nodes; use "minio-lb" on the balancer
+sudo hostnamectl set-hostname minioN</code></pre>
+          </div>
+
+          <h3>3) Hostname resolution</h3>
+          <p>Create a shared mapping (use your real IPs):</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">cat &lt;&lt;'EOF' | sudo tee -a /etc/hosts
+10.10.13.51  minio1
+10.10.13.52  minio2
+10.10.13.53  minio3
+10.10.13.54  minio4
+10.10.13.55  minio-lb
+EOF</code></pre>
+          </div>
+
+          <h3>4) Create a system group/user (optional but recommended for directory ownership)</h3>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># A local OS user/group to own the data mountpoints on the host:
+sudo groupadd --system minio || true
+sudo useradd  --system --no-create-home --shell /sbin/nologin --gid minio minio || true</code></pre>
+          </div>
+
+          <aside class="pl-4 border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-r-lg" role="note">
+            <p><strong>Note</strong>: The Dockerized MinIO process must be able to read/write <code>/data*</code>. Owning these paths by the <code>minio</code> group (or <code>root</code>) is fine; just ensure permissions allow read/write for the container. If you run SELinux enforcing, set contexts (see below).</p>
+          </aside>
+
+          <h3>5) Time sync, firewall, performance profile (RHEL/Alma Linux example)</h3>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo dnf -y install chrony firewalld tuned policycoreutils-python-utils setools-console jq
+sudo systemctl enable --now chronyd firewalld
+sudo tuned-adm profile throughput-performance</code></pre>
+          </div>
+
+          <h3>6) Configure Firewall (Docker Swarm & MinIO)</h3>
+          <p>These rules cover both <strong>Docker Swarm</strong> communication and <strong>MinIO</strong> application traffic. The source <code>10.10.13.0/24</code> should match your node subnet.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># --- Docker Swarm Communication ---
+
+# Manager node only (e.g., host ending in .51)
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='2377' protocol='tcp' accept"
+sudo firewall-cmd --permanent --add-rich-rule="rule protocol value='esp' accept"
+
+# All nodes except LB
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='7946' protocol='tcp' accept"
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='7946' protocol='udp' accept"
+sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='10.10.13.0/24' port port='4789' protocol='udp' accept"
+
+# --- MinIO Application Ports ---
+
+# All storage nodes: Allow 9000 (S3) & 9001 (Console) from cluster + LB
+for SRC in 10.10.13.51 10.10.13.52 10.10.13.53 10.10.13.54 10.10.13.55; do
+  sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='${SRC}' port port='9000' protocol='tcp' accept"
+  sudo firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address='${SRC}' port port='9001' protocol='tcp' accept"
+done
+
+# --- Apply All Rules ---
+sudo firewall-cmd --reload</code></pre>
+          </div>
+
+          <h3>7) SELinux (if enforcing)</h3>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Allow containers to use /data1..4
+sudo semanage fcontext -a -t container_file_t '/data[1-4](/.*)?'
+sudo restorecon -Rv /data1 /data2 /data3 /data4</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="requirements--sizing">Requirements & Sizing</h2>
+          <ul>
+            <li><strong>Filesystem</strong>: XFS is the recommended FS for MinIO production.</li>
+            <li><strong>Disks</strong>: One mount per disk (<code>/data1</code>, <code>/data2</code>, <code>/data3</code>, <code>/data4</code>)—no nested directories.</li>
+            <li><strong>Consistency</strong>: Keep drive sizes/types consistent <strong>within a pool</strong> to avoid reduced erasure-coding efficiency.</li>
+            <li><strong>Network</strong>: Low latency between nodes; 10GbE (or better) is ideal.</li>
+          </ul>
+
+          <hr>
+
+          <h2 id="prepare-disks-xfs-and-mounts-data14">Prepare Disks (XFS) and Mounts <code>/data1..4</code></h2>
+          <p>Example for 4 drives per node (<code>/dev/sdb..sde</code>):</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Partition & format
+for d in /dev/sdb /dev/sdc /dev/sdd /dev/sde; do
+  sudo parted -s "$d" mklabel gpt mkpart xfs 1MiB 100%
+  sudo mkfs.xfs -f "${d}1"
+done
+
+# Create mountpoints
+sudo mkdir -p /data1 /data2 /data3 /data4
+
+# Add to /etc/fstab (adjust device names if needed)
+echo "/dev/sdb1 /data1 xfs defaults 0 0" | sudo tee -a /etc/fstab
+echo "/dev/sdc1 /data2 xfs defaults 0 0" | sudo tee -a /etc/fstab
+echo "/dev/sdd1 /data3 xfs defaults 0 0" | sudo tee -a /etc/fstab
+echo "/dev/sde1 /data4 xfs defaults 0 0" | sudo tee -a /etc/fstab
+
+# Mount and set ownership/permissions
+sudo systemctl daemon-reload && sudo mount -a
+sudo chgrp minio /data1 /data2 /data3 /data4 || true
+sudo chmod 770  /data1 /data2 /data3 /data4</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="install-docker--initialize-swarm">Install Docker & Initialize Swarm</h2>
+          <p>These steps should be performed on all storage nodes (<code>minio1..4</code>).</p>
+
+          <h3>1) Create Sudo-Enabled Admin User</h3>
+          <p>First, create a dedicated user for administration on each storage node. This user will run <code>docker</code> commands without needing to be <code>root</code>.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Replace 'user-minio-01' with your desired username for each node
+adduser user-minio-01
+passwd user-minio-01
+
+# Add the user to the 'wheel' group for sudo privileges
+usermod -aG wheel user-minio-01</code></pre>
+          </div>
+
+          <h3>2) Install Docker Engine</h3>
+          <p>Next, install Docker Engine using the official repositories. This ensures you get the latest stable version.</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Remove any old Docker versions (optional but recommended)
+sudo dnf -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine || true
+
+# Add the Docker CE repository
+sudo dnf install -y yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+# Install Docker packages
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# Enable and start the Docker service
+sudo systemctl enable --now docker
+sudo systemctl status docker
+
+# Add your admin user to the 'docker' group to run Docker commands without sudo
+# Replace 'user-minio-01' with the username you created
+sudo usermod -aG docker user-minio-01
+
+# A reboot is required for the group changes to take full effect
+echo "Reboot required. Please run 'sudo reboot' and log back in as the new user."</code></pre>
+          </div>
+
+          <div class="alert warning" role="alert">
+            <p><strong>Important:</strong> After rebooting, log in as the new user (e.g., <code>user-minio-01</code>) for all subsequent steps. You should be able to run <code>docker</code> commands without <code>sudo</code>.</p>
+          </div>
+
+          <h3>3) Initialize Swarm</h3>
+          <p>Once Docker is running on all nodes, initialize the Swarm on your designated manager node and join the workers.</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># On the manager node (e.g., minio1):
+docker swarm init --advertise-addr &lt;manager-ip&gt;
+
+# On each worker node (e.g., minio2, minio3, minio4):
+docker swarm join --token &lt;token-from-init&gt; &lt;manager-ip&gt;:2377</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="node-labels--overlay-network">Node Labels & Overlay Network</h2>
+          <p>Label each node so one MinIO service lands on it:</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo docker node update --label-add minio.id=1 --label-add minio.pool=1 &lt;node-1-name&gt;
+sudo docker node update --label-add minio.id=2 --label-add minio.pool=1 &lt;node-2-name&gt;
+sudo docker node update --label-add minio.id=3 --label-add minio.pool=1 &lt;node-3-name&gt;
+sudo docker node update --label-add minio.id=4 --label-add minio.pool=1 &lt;node-4-name&gt;</code></pre>
+          </div>
+
+          <p>Create an attachable overlay network (optionally encrypted—benchmark first):</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo docker network create   --driver overlay   --attachable   # --opt encrypted   minio_net</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="secrets-root-credentials">Secrets (Root Credentials)</h2>
+          <p>Create the root user and password as Docker secrets. This command should be run <strong>only on a manager node</strong>. It uses <code>read -s</code> to prompt for credentials without saving them to your shell history.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Interactively and securely create secrets
+read -rsp "MINIO_ROOT_USER: " MINIO_ROOT_USER; echo
+read -rsp "MINIO_ROOT_PASSWORD: " MINIO_ROOT_PASSWORD; echo
+
+# Create Docker secrets from the variables
+printf '%s' "$MINIO_ROOT_USER"     | sudo docker secret create minio_root_user -
+printf '%s' "$MINIO_ROOT_PASSWORD" | sudo docker secret create minio_root_password -
+
+# Unset the variables to remove them from the shell session
+unset MINIO_ROOT_USER MINIO_ROOT_PASSWORD</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="deploy-the-cluster-minio-stackyml">Deploy the Cluster (<code>minio-stack.yml</code>)</h2>
+          <p>On the <strong>manager node only</strong>, create a dedicated directory to store the stack manifest. This keeps your configuration organized and secure.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo mkdir -p /opt/minio
+sudo chown -R user-minio-01:user-minio-01 /opt/minio
+sudo chmod 700 /opt/minio</code></pre>
+          </div>
+
+          <p>Now, save the following content as <code>/opt/minio/minio-stack.yml</code>.</p>
+
+          <blockquote>
+            <p><strong>Deploy command:</strong><br>
+            <code>sudo docker stack deploy -c /opt/minio/minio-stack.yml minio</code></p>
+          </blockquote>
+
+          <div class="highlight" data-language="yaml">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-yaml">version: "3.9"
+
+x-minio-common: &minio-common
+  image: quay.io/minio/minio:RELEASE.YYYY-MM-DDThh-mm-ssZ  # Pin a specific release
+  networks: [minio_net]
+  environment:
+    # URL S3 Public (for clients and pre-signed URLs)
+    MINIO_SERVER_URL: "https://example.com/minio/s3/"
+    # URL console public
+    MINIO_BROWSER_REDIRECT_URL: "https://example.com/minio/ui/"
+    MINIO_ROOT_USER_FILE: /run/secrets/minio_root_user
+    MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_root_password
+  secrets:
+    - minio_root_user
+    - minio_root_password
+  ulimits:
+    nofile: { soft: 65536, hard: 65536 }
+  stop_grace_period: 1m
+  healthcheck:
+    test: ["CMD-SHELL", "curl -fsS 'http://localhost:9000/minio/health/live' || exit 1"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+  command: >
+    minio server --console-address ":9001"
+    http://minio{1...4}/data{1...4}
+  volumes:
+    - /data1:/data1
+    - /data2:/data2
+    - /data3:/data3
+    - /data4:/data4
+  ports:
+    - target: 9000
+      published: 9000
+      protocol: tcp
+      mode: host
+    - target: 9001
+      published: 9001
+      protocol: tcp
+      mode: host
+
+services:
+  minio1:
+    &lt;&lt;: *minio-common
+    hostname: minio1
+    deploy:
+      placement:
+        constraints: [ "node.labels.minio.id == 1" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
+  minio2:
+    &lt;&lt;: *minio-common
+    hostname: minio2
+    deploy:
+      placement:
+        constraints: [ "node.labels.minio.id == 2" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
+  minio3:
+    &lt;&lt;: *minio-common
+    hostname: minio3
+    deploy:
+      placement:
+        constraints: [ "node.labels.minio.id == 3" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
+  minio4:
+    &lt;&lt;: *minio-common
+    hostname: minio4
+    deploy:
+      placement:
+        constraints: [ "node.labels.minio.id == 4" ]
+      restart_policy: { condition: any, delay: 5s }
+      update_config: { parallelism: 1, order: stop-first, failure_action: rollback }
+
+networks:
+  minio_net:
+    external: true
+
+secrets:
+  minio_root_user:
+    external: true
+  minio_root_password:
+    external: true</code></pre>
+          </div>
+
+          <p><strong>Why this layout?</strong><br>
+          - The <code>command</code> enumerates all nodes and disks: <code>http://minio{1...4}/data{1...4}</code>.<br>
+          - One service per node ensures stable names (<code>minio1..4</code>), simplifies ops, and supports adding a <strong>Pool 2</strong> later (<code>minio5..8</code>) without redesign.</p>
+
+          <hr>
+
+          <h2 id="load-balancer-node-setup-nginx">Load Balancer Node Setup (NGINX)</h2>
+          <p>These steps apply <strong>only to the Load Balancer (LB) node</strong>.</p>
+
+          <h3>1) Install NGINX & Configure SELinux</h3>
+          <p>Install NGINX and allow it to make network connections, which is required for proxying traffic to the MinIO backend.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo dnf -y install nginx
+sudo setsebool -P httpd_can_network_connect 1</code></pre>
+          </div>
+
+          <h3>2) Open Firewall Ports</h3>
+          <p>Allow public traffic on standard HTTP and HTTPS ports.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload</code></pre>
+          </div>
+
+          <h3>3) Create Admin User & Set Hostname</h3>
+          <p>Set a unique hostname and create a dedicated admin user for the LB node.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">sudo hostnamectl set-hostname minio-lb
+adduser user-minio-lb
+passwd user-minio-lb
+usermod -aG wheel user-minio-lb</code></pre>
+          </div>
+
+          <h3>4) TLS Certificate Setup</h3>
+          <p>Choose one of the following two options to secure your NGINX proxy.</p>
+
+          <h4>Option A: Let's Encrypt with Certbot (Recommended)</h4>
+          <p>This is the preferred method for obtaining and managing free, trusted TLS certificates.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Install Certbot for NGINX
+sudo dnf -y install certbot python3-certbot-nginx
+
+# Obtain and install a certificate (this will also update your NGINX config)
+sudo certbot --nginx -d minio.example.com</code></pre>
+          </div>
+
+          <h4>Option B: Manual Certificate Installation</h4>
+          <p>Use this method if you have a commercial or self-signed certificate. Place your certificate and private key in the specified directory.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Create a directory for TLS certificates
+sudo mkdir -p /etc/nginx/tls
+
+# Set secure ownership and permissions
+sudo chown root:nginx /etc/nginx/tls
+sudo chmod 750 /etc/nginx/tls
+
+# Copy your certificate and key, then set permissions
+# sudo cp /path/to/your/fullchain.pem /etc/nginx/tls/
+# sudo cp /path/to/your/privkey.pem /etc/nginx/tls/
+sudo chown root:nginx /etc/nginx/tls/*
+sudo chmod 640 /etc/nginx/tls/*</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="load-balancer-nginx">Load Balancer (NGINX)</h2>
+          <p>Expose S3 at <code>/</code> and Console at <code>/minio/ui</code> (or use a dedicated subdomain for the Console).</p>
+
+          <div class="highlight" data-language="nginx">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-nginx"># ─────────── Global Directives ───────────
+# For WebSocket support
+map $http_upgrade $connection_upgrade { 
+    default upgrade; 
+    ''      close; 
+}
+
+# Allow underscores in headers for S3 compatibility
+underscores_in_headers on;
+
+# ─────────── Upstreams ───────────
+upstream minio_s3 {
+    least_conn;
+    server minio1:9000 max_fails=3 fail_timeout=10s;
+    server minio2:9000 max_fails=3 fail_timeout=10s;
+    server minio3:9000 max_fails=3 fail_timeout=10s;
+    server minio4:9000 max_fails=3 fail_timeout=10s;
+    keepalive 64;
+}
+
+upstream minio_console {
+    least_conn;
+    server minio1:9001 max_fails=3 fail_timeout=10s;
+    server minio2:9001 max_fails=3 fail_timeout=10s;
+    server minio3:9001 max_fails=3 fail_timeout=10s;
+    server minio4:9001 max_fails=3 fail_timeout=10s;
+    keepalive 32;
+}
+
+# ─────────── HTTP → HTTPS ───────────
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+    return 301 https://$host$request_uri;
+}
+
+# ─────────── HTTPS Server ───────────
+server {
+    listen 443 ssl http2;
+    server_name minio.example.com;
+
+    # ssl_certificate     /etc/letsencrypt/live/minio.example.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/minio.example.net/privkey.pem;
+
+    client_max_body_size 0;
+    proxy_buffering off;
+    proxy_request_buffering off;
+
+    location /minio/s3/ {
+        rewrite ^/minio/s3/(.*) /$1 break;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        chunked_transfer_encoding off;
+        proxy_pass http://minio_s3;
+    }
+
+    location /minio/ui/ {
+        rewrite ^/minio/ui/(.*) /$1 break;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        chunked_transfer_encoding off;
+        proxy_pass http://minio_console;
+    }
+
+    location / {
+        return 308 /minio/ui/;  # Use 302 if you prefer temporary during testing.
+    }
+}</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="connecting-and-managing-with-minio-client-mc">Connecting and Managing with MinIO Client (<code>mc</code>)</h2>
+          <p>The MinIO Client (<code>mc</code>) is the recommended tool for administering your cluster. The following steps show how to run <code>mc</code> via a Docker container, ensuring a consistent environment.</p>
+
+          <h3>1. Set Up <code>mc</code> via Docker</h3>
+          <p>First, create a persistent volume for the <code>mc</code> configuration and launch a container with an interactive shell. This setup can be done on any host with Docker that can reach the cluster (either a cluster node or an external machine).</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># 1) (One-time only) Create a volume for mc config
+docker volume create mc-config
+
+# 2) Open a shell inside the mc container
+#    --network host is used for easy access when running on a cluster node
+docker run --rm -it --network host -v mc-config:/root/.mc --entrypoint sh --name mc-shell quay.io/minio/mc</code></pre>
+          </div>
+
+          <blockquote>
+            <p><strong>Note:</strong> All subsequent <code>mc</code> commands are run inside this container's shell.</p>
+          </blockquote>
+
+          <h3>2. Configure a Cluster Alias</h3>
+          <p>Next, create an alias to connect to your MinIO cluster. An alias is a nickname for a MinIO deployment, storing its URL and credentials.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Get root credentials from Docker secrets (run this on a manager node)
+MINIO_ROOT_USER=$(sudo docker secret inspect --format '{{.Spec.Data}}' minio_root_user | base64 -d)
+MINIO_ROOT_PASSWORD=$(sudo docker secret inspect --format '{{.Spec.Data}}' minio_root_password | base64 -d)
+
+# Create the alias inside the mc container
+# Option A: From an external host (points to the NGINX proxy)
+mc alias set myminio https://example.com/minio/s3/ "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" --api "s3v4"
+
+# Option B: From a node within the cluster (points directly to a MinIO service)
+mc alias set myminio http://minio1:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"</code></pre>
+          </div>
+
+          <hr>
+
+          <h2 id="health-readiness--observability">Health, Readiness & Observability</h2>
+          <ul>
+            <li>Health endpoints:
+              <ul>
+                <li>Liveness: <code>GET /minio/health/live</code></li>
+                <li>Readiness: <code>GET /minio/health/ready</code></li>
+                <li>Cluster: <code>GET /minio/health/cluster</code></li>
+              </ul>
+            </li>
+            <li>Metrics: scrape Prometheus targets at <code>/minio/v2/metrics/cluster</code> (and node metrics if desired).</li>
+            <li>Consider <code>mc admin prometheus generate</code> to bootstrap target lists.</li>
+          </ul>
+
+          <hr>
+
+          <h2 id="upgrades-zero-downtime--rolling-updates">Upgrades (Zero-Downtime) & Rolling Updates</h2>
+          <ul>
+            <li>Pin a specific MinIO release tag in <code>/opt/minio/minio-stack.yml</code>.</li>
+            <li>To upgrade, change the image tag and redeploy the stack:
+              <div class="highlight" data-language="bash">
+                <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+                <pre><code class="language-bash">sudo docker stack deploy -c /opt/minio/minio-stack.yml minio</code></pre>
+              </div>
+            </li>
+            <li>Services restart in place; S3 clients retry seamlessly in most cases.</li>
+          </ul>
+
+          <hr>
+
+          <h2 id="capacity-expansion-add-a-new-server-pool">Capacity Expansion: Add a New Server Pool</h2>
+          <p>Add nodes <code>minio5..minio8</code> with their own <code>/data1..4</code>. Update the <strong>same</strong> <code>server</code> command on <strong>all</strong> services to include both pools, e.g.:</p>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash">server --console-address ":9001"   http://minio{1...4}/data{1...4}   http://minio{5...8}/data{1...4}</code></pre>
+          </div>
+          <p>Then roll the stack so every service picks up the expanded endpoint list.</p>
+
+          <hr>
+
+          <h2 id="security-hardening-checklist">Security Hardening Checklist</h2>
+          <ul>
+            <li><strong>TLS everywhere</strong> (LB and/or node).</li>
+            <li><strong>Secrets</strong> for root credentials (<code>*_FILE</code> env).</li>
+            <li><strong>Least privilege</strong> app users & bucket policies—never use root creds in apps.</li>
+            <li><strong>Filesystem</strong>: XFS, consistent disk sizes within a pool, one mount per disk.</li>
+            <li><strong>Overlay encryption</strong>: optional; validate impact in staging before enabling.</li>
+            <li><strong>ulimits</strong>: raise <code>nofile</code> (e.g., 65k) if you expect high concurrency.</li>
+            <li><strong>Firewall & SELinux</strong>: restrict ingress, set proper SELinux contexts on <code>/data*</code>.</li>
+          </ul>
+
+          <hr>
+
+          <h2 id="troubleshooting">Troubleshooting</h2>
+          <ul>
+            <li><strong>A node doesn't join the cluster</strong>: all services must list the same endpoints; check DNS (<code>/etc/hosts</code>) and <code>command</code> strings.</li>
+            <li><strong>Permission denied on <code>/data*</code></strong>: verify ownership/permissions and SELinux context; ensure the container UID can write.</li>
+            <li><strong>LB 502/504 or Console errors</strong>: confirm upstreams are healthy, keep-alives enabled, and <code>MINIO_BROWSER_REDIRECT_URL</code> is set correctly.</li>
+            <li><strong>Drive replaced</strong>: mount it at the same path (<code>/dataX</code>), fix ownership/labels, then <code>mc admin heal -r</code>.</li>
+          </ul>
+
+          <hr>
+
+          <h2 id="appendix-handy-commands">Appendix: Handy Commands</h2>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Swarm status
+docker node ls
+docker service ls
+docker service ps minio_minio1
+
+# Network
+docker network inspect minio_net
+
+# Cluster
+mc admin info s3
+mc admin top locks s3
+mc admin heal -r s3</code></pre>
+          </div>
+
+          </section>
+        </article>
+
+        <footer class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700" role="contentinfo">
+          <div class="flex flex-col sm:flex-row justify-between items-center">
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2 sm:mb-0">
+              Licensed under <strong>MIT License</strong>
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Documentation for MinIO Docker Swarm Production Deployment
+            </p>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div 
+    id="sidebar-overlay" 
+    class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden hidden" 
+    aria-hidden="true"></div>
+
+</body>
+</html>

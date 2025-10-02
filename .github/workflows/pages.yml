@@ -10,7 +10,7 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
+concurrency:  
   group: "pages"
   cancel-in-progress: true
 
@@ -22,10 +22,18 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
-      - uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./docs
-          destination: ./_site
+      - name: Setup static pages
+        run: |
+          # Copy all static files from docs directory
+          mkdir -p ./_site
+          cp -r docs/* ./_site/
+          # Ensure index.html is at root for GitHub Pages
+          if [ -f ./_site/index.html ]; then
+            echo "Static index.html found and ready for deployment"
+          else
+            echo "Error: No index.html found in docs directory"
+            exit 1
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
