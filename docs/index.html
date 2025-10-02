@@ -113,35 +113,36 @@
   <script src="assets/js/main.js" defer></script>
 </head>
 
-<body class="font-sans bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200 pt-16">
+<body class="font-sans bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
 
-  <!-- Header -->
-  <header class="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm z-40">
-    <div class="flex items-center justify-between h-full px-6">
-      <a href="#" class="text-xl font-semibold text-gray-900 dark:text-white hover:text-custom-blue-600 dark:hover:text-custom-blue-300 transition-colors duration-200">
-        MinIO on Docker Swarm — Production Guide
-      </a>
-      <div class="flex items-center space-x-3">
-        <button id="theme-toggle" class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200">
-          <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-          </svg>
-          <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-          </svg>
-        </button>
-        <button id="sidebar-toggle" class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg md:hidden transition-colors duration-200">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>  
-        </button>
-      </div>
+  <!-- Mobile Sidebar Toggle (floating) -->
+  <button id="sidebar-toggle" class="fixed top-4 left-20 p-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg transition-all duration-200 z-50 md:hidden">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>  
+  </button>
+
+  <!-- Floating Theme Toggle -->
+  <button id="theme-toggle" class="fixed top-4 right-4 p-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg transition-all duration-200 z-50">
+    <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+    </svg>
+    <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+    </svg>
+  </button>
+
+  <!-- Floating Version Badge -->
+  <div class="fixed top-4 left-4 px-3 py-2 text-xs font-mono bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
+    <div class="flex items-center space-x-2">
+      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+      <span>RELEASE.2025-09-07T16-13-09Z</span>
     </div>
-  </header>
+  </div>
 
   <div class="flex min-h-screen pt-0">
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed md:sticky top-16 left-0 h-[calc(100vh-4rem)] w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+    <aside id="sidebar" class="fixed md:sticky top-0 left-0 h-screen w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
       <nav class="p-6">
         <ul class="space-y-1">
           <li><a href="#architecture-overview" class="sidebar-link block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-custom-blue-600 dark:hover:text-custom-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">Architecture Overview</a></li>
