@@ -570,7 +570,7 @@ usermod -aG wheel user-minio-lb</code></pre>
 sudo dnf -y install certbot python3-certbot-nginx
 
 # Obtain and install a certificate (this will also update your NGINX config)
-sudo certbot --nginx -d minio.example.com</code></pre>
+sudo certbot --nginx -d example.com</code></pre>
           </div>
 
           <h4>Option B: Manual Certificate Installation</h4>
@@ -639,10 +639,10 @@ server {
 # ─────────── HTTPS Server ───────────
 server {
     listen 443 ssl http2;
-    server_name minio.example.com;
+    server_name example.com;
 
-    # ssl_certificate     /etc/letsencrypt/live/minio.example.com/fullchain.pem;
-    # ssl_certificate_key /etc/letsencrypt/live/minio.example.net/privkey.pem;
+    # ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/example.net/privkey.pem;
 
     client_max_body_size 0;
     proxy_buffering off;
@@ -717,6 +717,68 @@ mc alias set myminio https://example.com/minio/s3/ "$MINIO_ROOT_USER" "$MINIO_RO
 # Option B: From a node within the cluster (points directly to a MinIO service)
 mc alias set myminio http://minio1:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"</code></pre>
           </div>
+
+          <h3>3. Example Workflow: Create a Bucket, User, and Policy</h3>
+          <p>This workflow demonstrates how to create a dedicated user with access restricted to a single bucket.</p>
+
+          <h4>Step 1: Create a Bucket</h4>
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Create a new bucket named 'test-bucket'
+mc mb myminio/test-bucket
+
+# Verify the bucket was created
+mc ls myminio</code></pre>
+          </div>
+
+          <h4>Step 2: Create a Read/Write Policy</h4>
+          <p>Create a JSON file with a policy that grants full access (<code>s3:*</code>) but only to <code>test-bucket</code>.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Inside the mc container, create the policy file
+cat &lt;&lt;'EOF' &gt; /tmp/test-bucket-policy.json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": ["s3:*"],
+            "Resource": ["arn:aws:s3:::test-bucket/*"]
+        }
+    ]
+}
+EOF
+
+# Add the new policy to MinIO
+mc admin policy add myminio test-bucket-policy /tmp/test-bucket-policy.json</code></pre>
+          </div>
+
+          <h4>Step 3: Create a User and Attach the Policy</h4>
+          <p>Now, create a new user and assign the policy you just created.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># Create a new user named 'user.test' with a secure password
+mc admin user add myminio user.test 'YOUR_SECURE_PASSWORD_HERE'
+
+# Attach the bucket-specific policy to the new user
+mc admin policy attach myminio test-bucket-policy --user user.test</code></pre>
+          </div>
+
+          <h4>Step 4: Generate a Service Account for Application Use</h4>
+          <p>For applications, it is best practice to use service accounts, which are long-lived credentials tied to a user. The user <code>user.test</code> can create a service account for themselves.</p>
+
+          <div class="highlight" data-language="bash">
+            <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
+            <pre><code class="language-bash"># First, create an alias for the new user
+mc alias set testuser https://example.com/minio/s3/ user.test 'YOUR_SECURE_PASSWORD_HERE' --api "s3v4"
+
+# Now, as 'testuser', create a service account
+mc admin user svcacct add --access-key 'app.test.access.key' --secret-key 'app.test.secret.key' testuser user.test</code></pre>
+          </div>
+
+          <p>The generated <code>Access Key</code> and <code>Secret Key</code> can now be used in your application's S3 client configuration to interact with <code>test-bucket</code>.</p>
 
           <hr>
 
