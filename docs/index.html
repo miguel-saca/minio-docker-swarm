@@ -65,6 +65,17 @@
     .dark .content-area code:not(.highlight code) { background-color: rgb(55 65 81); color: rgb(248 113 113); }
     .content-area blockquote { border-left: 4px solid rgb(209 213 219); padding-left: 1rem; margin: 1rem 0; font-style: italic; color: rgb(107 114 128); }
     .dark .content-area blockquote { border-left-color: rgb(75 85 99); color: rgb(156 163 175); }
+    
+    /* Remove text-shadow for code snippets in dark mode */
+    .dark .highlight pre code, .dark .highlight code, .dark pre[class*="language-"] code[class*="language-"] { 
+      text-shadow: none !important; 
+    }
+    /* Ensure sharp text rendering for all code elements in dark mode */
+    .dark code, .dark pre code, .dark .token { 
+      text-shadow: none !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
   </style>
   <script src="assets/js/main.js" defer></script>
 </head>
