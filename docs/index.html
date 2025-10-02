@@ -113,6 +113,20 @@
     
     /* Override any low-contrast defaults */
     .dark .token { color: #c9d1d9; }
+    
+    /* MinIO Logo Styling */
+    .minio-logo {
+      color: #cf163e; /* MinIO red for light theme */
+      transition: color 0.2s ease;
+    }
+    
+    .dark .minio-logo {
+      color: #f9fafb; /* Ivory white for dark theme */
+    }
+    
+    .minio-logo:hover {
+      opacity: 0.8;
+    }
   </style>
   <script src="assets/js/main.js" defer></script>
 </head>
@@ -148,6 +162,25 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="fixed md:sticky top-0 left-0 h-screen w-72 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
       <nav class="h-full flex flex-col p-6">
+        <!-- MinIO Logo Header -->
+        <div class="mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
+          <a href="#" class="flex items-center space-x-3 group">
+            <div class="flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="18" viewBox="0 0 106 18" fill="none" class="minio-logo">
+                <path d="M40.6149 0.304199H34.7266V17.6899H40.6149V0.304199Z" fill="currentColor"></path>
+                <path d="M27.4597 0.241986L15.5093 7.53878C15.3418 7.64426 15.1246 7.64426 14.9571 7.53878L3.00672 0.241986C2.75233 0.0868666 2.4545 0 2.15047 0H2.13806C1.23216 0 0.5 0.732161 0.5 1.63806V17.3671H6.38211V9.88418C6.38211 9.42503 6.88469 9.13961 7.27559 9.38159L13.9705 13.4767C14.6282 13.88 15.4597 13.8862 16.1236 13.4953L23.1908 9.35057C23.5817 9.12099 24.0781 9.40641 24.0781 9.85936V17.3671H29.9602V1.63806C29.9602 0.732161 29.228 0 28.3221 0H28.3097C28.0057 0 27.7141 0.0806618 27.4535 0.241986" fill="currentColor"></path>
+                <path d="M69.9642 0.304199H63.9953V8.21526C63.9953 8.66201 63.5237 8.94122 63.1328 8.73646L47.6581 0.496547C47.4224 0.372452 47.1556 0.304199 46.8887 0.304199H46.8763C45.9704 0.304199 45.2383 1.03636 45.2383 1.94226V17.6713H51.1576V9.76645C51.1576 9.32592 51.6292 9.0405 52.0201 9.24525L67.5506 17.4852C67.7864 17.6093 68.0532 17.6775 68.32 17.6775C69.2259 17.6775 69.958 16.9454 69.958 16.0395V0.304199H69.9642Z" fill="currentColor"></path>
+                <path d="M77.3013 0.304199H74.5898V17.6899H77.3013V0.304199Z" fill="currentColor"></path>
+                <path d="M93.242 18C85.9576 18 80.7891 14.544 80.7891 9.0031C80.7891 3.46225 85.9824 0 93.242 0C100.502 0 105.726 3.45605 105.726 8.9969C105.726 14.5377 100.619 17.9938 93.242 17.9938M93.242 2.30196C87.8253 2.30196 83.6495 4.66598 83.6495 8.9969C83.6495 13.3278 87.8253 15.6918 93.242 15.6918C98.6588 15.6918 102.866 13.3588 102.866 8.9969C102.866 4.63495 98.665 2.30196 93.242 2.30196Z" fill="currentColor"></path>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-200">MinIO Docker Swarm</h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Production Guide</p>
+            </div>
+          </a>
+        </div>
+        
         <ul class="space-y-1">
           <li><a href="#architecture-overview" class="sidebar-link block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-custom-blue-600 dark:hover:text-custom-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">Architecture Overview</a></li>
           <li><a href="#global-host-configuration-all-nodes" class="sidebar-link block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-custom-blue-600 dark:hover:text-custom-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">Global Host Configuration</a></li>
