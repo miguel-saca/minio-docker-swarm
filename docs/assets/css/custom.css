@@ -505,7 +505,19 @@ button:focus {
     transition: none;
   }
 }
+/* ========================================
+   REFERENCES SECTION STYLES
+   ======================================== */
 
+   .hanging-indent {
+    padding-left: 2rem;
+    text-indent: -2rem;
+  }
+  
+  .hanging-indent p {
+    margin: 0;
+    line-height: 1.6;
+  }
 /* Respect user's contrast preferences */
 @media (prefers-contrast: high) {
   .theme-aware-svg {
