@@ -195,6 +195,7 @@
           <li><a href="#security-hardening-checklist" class="sidebar-link">Security Hardening</a></li>
           <li><a href="#troubleshooting" class="sidebar-link">Troubleshooting</a></li>
           <li><a href="#appendix-handy-commands" class="sidebar-link">Appendix: Handy Commands</a></li>
+          <li><a href="#references" class="sidebar-link">References</a></li>
         </ul>
         
         <!-- Mobile Version Badge (footer in sidebar, visible on small screens only) -->
@@ -248,9 +249,9 @@
             </div>
             
             <ul class="space-y-2">
-              <li><strong>Distributed MinIO</strong> across nodes and disks with erasure coding. You'll deploy <strong>one service per node</strong> (<code>minio1..minio4</code>) for stable addressing and easier ops.</li>
-              <li><strong>Server pools</strong> support online capacity expansion; plan consistent disk sizes within a pool.</li>
-              <li>An external <strong>L4/L7 load balancer</strong> (NGINX shown) fronts S3 API (port 9000) and the Console (port 9001).</li>
+              <li><strong>Distributed MinIO</strong> across nodes and disks with erasure coding (MinIO, Inc., 2024). You'll deploy <strong>one service per node</strong> (<code>minio1..minio4</code>) for stable addressing and easier ops.</li>
+              <li><strong>Server pools</strong> support online capacity expansion; plan consistent disk sizes within a pool (MinIO, Inc., 2024).</li>
+              <li>An external <strong>L4/L7 load balancer</strong> (NGINX shown) fronts S3 API (port 9000) and the Console (port 9001), providing S3-compatible object storage service (Amazon Web Services, 2024).</li>
             </ul>
           </section>
 
@@ -348,9 +349,9 @@ sudo restorecon -Rv /data1 /data2 /data3 /data4</code></pre>
 
           <h2 id="requirements--sizing">Requirements & Sizing</h2>
           <ul>
-            <li><strong>Filesystem</strong>: XFS is the recommended FS for MinIO production.</li>
-            <li><strong>Disks</strong>: One mount per disk (<code>/data1</code>, <code>/data2</code>, <code>/data3</code>, <code>/data4</code>)—no nested directories.</li>
-            <li><strong>Consistency</strong>: Keep drive sizes/types consistent <strong>within a pool</strong> to avoid reduced erasure-coding efficiency.</li>
+            <li><strong>Filesystem</strong>: XFS is the recommended FS for MinIO production (MinIO, Inc., 2024).</li>
+            <li><strong>Disks</strong>: One mount per disk (<code>/data1</code>, <code>/data2</code>, <code>/data3</code>, <code>/data4</code>)—no nested directories (MinIO, Inc., 2024).</li>
+            <li><strong>Consistency</strong>: Keep drive sizes/types consistent <strong>within a pool</strong> to avoid reduced erasure-coding efficiency (MinIO, Inc., 2024).</li>
             <li><strong>Network</strong>: Low latency between nodes; 10GbE (or better) is ideal.</li>
           </ul>
 
@@ -430,7 +431,7 @@ echo "Reboot required. Please run 'sudo reboot' and log back in as the new user.
           </div>
 
           <h3>3) Initialize Swarm</h3>
-          <p>Once Docker is running on all nodes, initialize the Swarm on your designated manager node and join the workers.</p>
+          <p>Once Docker is running on all nodes, initialize the Swarm on your designated manager node and join the workers. Docker Swarm mode provides native cluster management capabilities integrated with Docker Engine (Docker, Inc., 2024).</p>
           <div class="highlight" data-language="bash">
             <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
             <pre><code class="language-bash"># On the manager node (e.g., minio1):
@@ -450,7 +451,7 @@ docker swarm join --token &lt;token-from-init&gt; &lt;manager-ip&gt;:2377</code>
           <hr>
 
           <h2 id="node-labels--overlay-network">Node Labels & Overlay Network</h2>
-          <p>Label each node so one MinIO service lands on it:</p>
+          <p>Label each node so one MinIO service lands on it. Docker Swarm's declarative service model allows you to define the desired state of services in your application stack (Docker, Inc., 2024):</p>
           <div class="highlight" data-language="bash">
             <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
             <pre><code class="language-bash">sudo docker node update --label-add minio.id=1 --label-add minio.pool=1 &lt;node-1-name&gt;
@@ -459,7 +460,7 @@ sudo docker node update --label-add minio.id=3 --label-add minio.pool=1 &lt;node
 sudo docker node update --label-add minio.id=4 --label-add minio.pool=1 &lt;node-4-name&gt;</code></pre>
           </div>
 
-          <p>Create an attachable overlay network (optionally encrypted—benchmark first):</p>
+          <p>Create an attachable overlay network (optionally encrypted—benchmark first). Docker Swarm provides multi-host networking capabilities through overlay networks (Docker, Inc., 2024):</p>
           <div class="highlight" data-language="bash">
             <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
             <pre><code class="language-bash">sudo docker network create   --driver overlay   --attachable   # --opt encrypted   minio_net</code></pre>
@@ -602,7 +603,7 @@ secrets:
           </div>
 
           <p><strong>Why this layout?</strong><br>
-          - The <code>command</code> enumerates all nodes and disks: <code>http://minio{1...4}/data{1...4}</code>.<br>
+          - The <code>command</code> enumerates all nodes and disks: <code>http://minio{1...4}/data{1...4}</code>, allowing MinIO to automatically group drives into erasure sets for data redundancy (MinIO, Inc., 2024).<br>
           - One service per node ensures stable names (<code>minio1..4</code>), simplifies ops, and supports adding a <strong>Pool 2</strong> later (<code>minio5..8</code>) without redesign.</p>
 
           <hr>
@@ -771,7 +772,7 @@ server {
           <hr>
 
           <h2 id="connecting-and-managing-with-minio-client-mc">Connecting and Managing with MinIO Client (<code>mc</code>)</h2>
-          <p>The MinIO Client (<code>mc</code>) is the recommended tool for administering your cluster. The following steps show how to run <code>mc</code> via a Docker container, ensuring a consistent environment.</p>
+          <p>The MinIO Client (<code>mc</code>) is the recommended tool for administering your cluster. The following steps show how to run <code>mc</code> via a Docker container, ensuring a consistent environment. MinIO provides S3-compatible APIs that can be accessed through various client tools (Amazon Web Services, 2024; MinIO, Inc., 2024).</p>
 
           <h3>1. Set Up <code>mc</code> via Docker</h3>
           <p>First, create a persistent volume for the <code>mc</code> configuration and launch a container with an interactive shell. This setup can be done on any host with Docker that can reach the cluster (either a cluster node or an external machine).</p>
@@ -896,7 +897,7 @@ mc admin user svcacct add --access-key 'app.test.access.key' --secret-key 'app.t
           <h2 id="upgrades-zero-downtime--rolling-updates">Upgrades (Zero-Downtime) & Rolling Updates</h2>
           <ul>
             <li>Pin a specific MinIO release tag in <code>/opt/minio/minio-stack.yml</code>.</li>
-            <li>To upgrade, change the image tag and redeploy the stack:
+            <li>To upgrade, change the image tag and redeploy the stack. Docker Swarm supports rolling updates, allowing you to apply service updates incrementally to maintain availability (Docker, Inc., 2024):
               <div class="highlight" data-language="bash">
                 <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
                 <pre><code class="language-bash">sudo docker stack deploy -c /opt/minio/minio-stack.yml minio</code></pre>
@@ -908,7 +909,7 @@ mc admin user svcacct add --access-key 'app.test.access.key' --secret-key 'app.t
           <hr>
 
           <h2 id="capacity-expansion-add-a-new-server-pool">Capacity Expansion: Add a New Server Pool</h2>
-          <p>Add nodes <code>minio5..minio8</code> with their own <code>/data1..4</code>. Update the <strong>same</strong> <code>server</code> command on <strong>all</strong> services to include both pools, e.g.:</p>
+          <p>Add nodes <code>minio5..minio8</code> with their own <code>/data1..4</code>. Update the <strong>same</strong> <code>server</code> command on <strong>all</strong> services to include both pools. MinIO supports pool expansion to scale storage capacity while maintaining data availability (MinIO, Inc., 2024), e.g.:</p>
           <div class="highlight" data-language="bash">
             <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
             <pre><code class="language-bash">server --console-address ":9001"   http://minio{1...4}/data{1...4}   http://minio{5...8}/data{1...4}</code></pre>
@@ -955,6 +956,24 @@ docker network inspect minio_net
 mc admin info s3
 mc admin top locks s3
 mc admin heal -r s3</code></pre>
+          </div>
+                   
+           <hr>
+
+          <h2 id="references">References</h2>
+          
+          <div class="space-y-4 text-sm">
+            <div class="hanging-indent">
+              <p>Amazon Web Services. (2024). <em>What is Amazon S3? - Amazon Simple Storage Service</em>. Amazon Web Services. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html">https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html</a></p>
+            </div>
+            
+            <div class="hanging-indent">
+              <p>Docker, Inc. (2024). <em>Swarm mode | Docker Docs</em>. Docker Documentation. <a href="https://docs.docker.com/engine/swarm/">https://docs.docker.com/engine/swarm/</a></p>
+            </div>
+            
+            <div class="hanging-indent">
+              <p>MinIO, Inc. (2024). <em>Deployment architecture — MinIO object storage (AGPLv3)</em>. MinIO Documentation. <a href="https://docs.min.io/community/minio-object-store/operations/concepts/architecture.html">https://docs.min.io/community/minio-object-store/operations/concepts/architecture.html</a></p>
+            </div>
           </div>
 
           </section>
