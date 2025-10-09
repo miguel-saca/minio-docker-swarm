@@ -1,37 +1,73 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // --- 1. THEME SWITCHER --- //
+  // --- 1. ENHANCED THEME SWITCHER --- //
   const themeToggle = document.getElementById('theme-toggle');
   const sidebarToggle = document.getElementById('sidebar-toggle');
   const sidebar = document.getElementById('sidebar');
   const sidebarOverlay = document.getElementById('sidebar-overlay');
   
-  // Initialize theme
-  const currentTheme = localStorage.getItem('theme') || 'light';
-  if (currentTheme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
+  // Theme is already initialized by the inline script in <head>
+  // This ensures no flash of unstyled content
+  
+  // Function to handle all theme-dependent updates
+  function updateThemeElements(theme) {
+    // Update data-theme attribute for CSS and SVG styling
+    document.documentElement.setAttribute('data-theme', theme);
+    
+    // Update theme-aware SVGs
+    document.querySelectorAll('.theme-aware-svg').forEach(svg => {
+      // Force SVG to re-evaluate its styling by triggering a repaint
+      svg.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+      
+      // For SVGs that need different sources per theme (if implemented later)
+      const lightSrc = svg.getAttribute('data-theme-src-light');
+      const darkSrc = svg.getAttribute('data-theme-src-dark');
+      
+      if (lightSrc && darkSrc && lightSrc !== darkSrc) {
+        svg.src = theme === 'dark' ? darkSrc : lightSrc;
+      }
+    });
+    
+    // Update Prism.js syntax highlighting
+    setTimeout(() => {
+      if (window.Prism) {
+        window.Prism.highlightAll();
+      }
+    }, 50);
+    
+    // Dispatch custom event for other components that need to respond
+    window.dispatchEvent(new CustomEvent('themeChange', {
+      detail: { theme: theme, source: 'manual' }
+    }));
   }
 
+  // Handle manual theme toggle
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
       const isDark = document.documentElement.classList.contains('dark');
+      const newTheme = isDark ? 'light' : 'dark';
+      
       if (isDark) {
         document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
       } else {
         document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
       }
       
-      // Re-highlight code blocks after theme change
-      setTimeout(() => {
-        if (window.Prism) {
-          window.Prism.highlightAll();
-        }
-      }, 50);
+      localStorage.setItem('theme', newTheme);
+      updateThemeElements(newTheme);
     });
   }
+  
+  // Listen for system theme changes (handled by inline script) and other theme changes
+  window.addEventListener('themeChange', (e) => {
+    const { theme, source } = e.detail;
+    if (source === 'system') {
+      updateThemeElements(theme);
+    }
+  });
+  
+  // Initial theme update for any elements that need it
+  const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  updateThemeElements(currentTheme);
 
   // --- MOBILE SIDEBAR TOGGLE --- //
   if (sidebarToggle && sidebar && sidebarOverlay) {
@@ -167,4 +203,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // Highlight all code blocks on load
     window.Prism.highlightAll();
   }
+  
+  // --- 5. ACCESSIBILITY ENHANCEMENTS --- //
+  
+  // Update ARIA labels based on current theme
+  function updateThemeAriaLabels() {
+    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    const toggleButton = document.getElementById('theme-toggle');
+    
+    if (toggleButton) {
+      const newLabel = currentTheme === 'dark' 
+        ? 'Switch to light theme' 
+        : 'Switch to dark theme';
+      toggleButton.setAttribute('aria-label', newLabel);
+    }
+  }
+  
+  // Initialize ARIA labels
+  updateThemeAriaLabels();
+  
+  // Update ARIA labels when theme changes
+  window.addEventListener('themeChange', updateThemeAriaLabels);
+  
+  // --- 6. PERFORMANCE OPTIMIZATIONS --- //
+  
+  // Preload theme-aware assets based on user's preference
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const storedTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+  
+  // You can add preloading logic here for theme-specific assets if needed
+  
 });

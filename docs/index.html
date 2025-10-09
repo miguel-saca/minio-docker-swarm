@@ -19,6 +19,63 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
+  <!-- Theme Detection Script (Must run before body) -->
+  <script>
+    // Enhanced theme detection with browser preference support
+    (function() {
+      // Get stored theme or detect browser preference
+      const getInitialTheme = () => {
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'light' || storedTheme === 'dark') {
+          return storedTheme;
+        }
+        // Detect browser preference
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      };
+      
+      const theme = getInitialTheme();
+      
+      // Apply theme immediately to prevent flash
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+      
+      // Store the detected/applied theme
+      localStorage.setItem('theme', theme);
+      
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        // Only auto-switch if user hasn't manually set a preference
+        const currentStored = localStorage.getItem('theme');
+        const systemPreference = e.matches ? 'dark' : 'light';
+        
+        // Check if current theme matches system (indicating user follows system preference)
+        const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        const systemCurrentlyMatches = window.matchMedia('(prefers-color-scheme: dark)').matches === (currentTheme === 'dark');
+        
+        if (systemCurrentlyMatches && currentStored === currentTheme) {
+          if (systemPreference === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+          localStorage.setItem('theme', systemPreference);
+          
+          // Dispatch custom event for theme change
+          window.dispatchEvent(new CustomEvent('themeChange', {
+            detail: { theme: systemPreference, source: 'system' }
+          }));
+        }
+      });
+    })();
+  </script>
+
   <!-- Tailwind CSS Configuration -->
   <script>
     tailwind.config = {
@@ -181,9 +238,12 @@
             <h2 class="text-2xl font-semibold mb-4">Architecture Overview</h2>
             
             <div class="mb-8">
-              <img src="assets/images/minio-docker-swarm-cluster-architecture-diagram.svg" 
+              <img id="architecture-diagram"
+                   src="assets/images/minio-docker-swarm-cluster-architecture-diagram.svg" 
                    alt="MinIO Docker Swarm Cluster Architecture Diagram" 
-                   class="w-full max-w-4xl mx-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm" />
+                   class="w-full max-w-4xl mx-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm theme-aware-svg" 
+                   data-theme-src-light="assets/images/minio-docker-swarm-cluster-architecture-diagram.svg"
+                   data-theme-src-dark="assets/images/minio-docker-swarm-cluster-architecture-diagram.svg" />
               <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic">MinIO Docker Swarm Cluster Architecture</p>
             </div>
             

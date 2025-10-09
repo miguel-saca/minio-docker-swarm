@@ -459,7 +459,37 @@ button:focus {
   }
 }
 
-/* Reduced motion support */
+/* ========================================
+   THEME-AWARE SVG STYLING
+   ======================================== */
+
+.theme-aware-svg {
+  transition: all 0.3s ease;
+}
+
+/* Ensure SVGs inherit color scheme properly */
+.theme-aware-svg {
+  color-scheme: light;
+}
+
+.dark .theme-aware-svg {
+  color-scheme: dark;
+}
+
+/* Force SVG background colors to adapt */
+[data-theme="light"] .theme-aware-svg {
+  filter: none;
+}
+
+[data-theme="dark"] .theme-aware-svg {
+  filter: brightness(0.9) contrast(1.1);
+}
+
+/* ========================================
+   SYSTEM PREFERENCE RESPECTING STYLES
+   ======================================== */
+
+/* Respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -469,5 +499,20 @@ button:focus {
   
   html {
     scroll-behavior: auto;
+  }
+  
+  .theme-aware-svg {
+    transition: none;
+  }
+}
+
+/* Respect user's contrast preferences */
+@media (prefers-contrast: high) {
+  .theme-aware-svg {
+    filter: contrast(1.5);
+  }
+  
+  .dark .theme-aware-svg {
+    filter: brightness(0.9) contrast(1.8);
   }
 }
