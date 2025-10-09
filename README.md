@@ -1,8 +1,8 @@
 # MinIO on Docker Swarm — **Production Guide** (Distributed, S3-Compatible)
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen)](https://your-username.github.io/minio-swarm-production/)
-[![CI: Pages](https://img.shields.io/github/actions/workflow/status/your-username/minio-swarm-production/pages.yml?label=Pages)](./.github/workflows/pages.yml)
+[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen)](https://miguel-saca.github.io/minio-swarm-production/)
+[![CI: Pages](https://img.shields.io/github/actions/workflow/status/miguel-saca/minio-swarm-production/pages.yml?label=Pages)](./.github/workflows/pages.yml)
 
 A complete, opinionated, **production-grade** manual to deploy a **distributed MinIO cluster on Docker Swarm** with **XFS**, **erasure coding**, **NGINX** reverse proxy, **secrets**, **health checks**, **observability**, **zero-downtime upgrades**, and **capacity expansion**.
 

@@ -19,6 +19,63 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
+  <!-- Theme Detection Script (Must run before body) -->
+  <script>
+    // Enhanced theme detection with browser preference support
+    (function() {
+      // Get stored theme or detect browser preference
+      const getInitialTheme = () => {
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme === 'light' || storedTheme === 'dark') {
+          return storedTheme;
+        }
+        // Detect browser preference
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      };
+      
+      const theme = getInitialTheme();
+      
+      // Apply theme immediately to prevent flash
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+      
+      // Store the detected/applied theme
+      localStorage.setItem('theme', theme);
+      
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        // Only auto-switch if user hasn't manually set a preference
+        const currentStored = localStorage.getItem('theme');
+        const systemPreference = e.matches ? 'dark' : 'light';
+        
+        // Check if current theme matches system (indicating user follows system preference)
+        const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        const systemCurrentlyMatches = window.matchMedia('(prefers-color-scheme: dark)').matches === (currentTheme === 'dark');
+        
+        if (systemCurrentlyMatches && currentStored === currentTheme) {
+          if (systemPreference === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+          localStorage.setItem('theme', systemPreference);
+          
+          // Dispatch custom event for theme change
+          window.dispatchEvent(new CustomEvent('themeChange', {
+            detail: { theme: systemPreference, source: 'system' }
+          }));
+        }
+      });
+    })();
+  </script>
+
   <!-- Tailwind CSS Configuration -->
   <script>
     tailwind.config = {
@@ -179,6 +236,17 @@
 
           <section id="architecture-overview" class="mb-12">
             <h2 class="text-2xl font-semibold mb-4">Architecture Overview</h2>
+            
+            <div class="mb-8">
+              <img id="architecture-diagram"
+                   src="assets/images/minio-docker-swarm-cluster-architecture-diagram.svg" 
+                   alt="MinIO Docker Swarm Cluster Architecture Diagram" 
+                   class="w-full max-w-4xl mx-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm theme-aware-svg" 
+                   data-theme-src-light="assets/images/minio-docker-swarm-cluster-architecture-diagram.svg"
+                   data-theme-src-dark="assets/images/minio-docker-swarm-cluster-architecture-diagram.svg" />
+              <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic">MinIO Docker Swarm Cluster Architecture</p>
+            </div>
+            
             <ul class="space-y-2">
               <li><strong>Distributed MinIO</strong> across nodes and disks with erasure coding. You'll deploy <strong>one service per node</strong> (<code>minio1..minio4</code>) for stable addressing and easier ops.</li>
               <li><strong>Server pools</strong> support online capacity expansion; plan consistent disk sizes within a pool.</li>
@@ -372,6 +440,13 @@ docker swarm init --advertise-addr &lt;manager-ip&gt;
 docker swarm join --token &lt;token-from-init&gt; &lt;manager-ip&gt;:2377</code></pre>
           </div>
 
+          <div class="my-8">
+            <img src="assets/images/docker-swarm-node-status-in-cli.png" 
+                 alt="Docker Swarm node status shown in command line interface" 
+                 class="w-full max-w-3xl mx-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" />
+            <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic">Docker Swarm node status in CLI</p>
+          </div>
+
           <hr>
 
           <h2 id="node-labels--overlay-network">Node Labels & Overlay Network</h2>
@@ -427,6 +502,13 @@ sudo chmod 700 /opt/minio</code></pre>
             <p><strong>Deploy command:</strong><br>
             <code>sudo docker stack deploy -c /opt/minio/minio-stack.yml minio</code></p>
           </blockquote>
+          
+          <div class="my-8">
+            <img src="assets/images/docker-swarm-service-list-in-cli.png" 
+                 alt="Docker Swarm service list shown in command line interface" 
+                 class="w-full max-w-4xl mx-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" />
+            <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic">Docker Swarm service list after deployment</p>
+          </div>
 
           <div class="highlight" data-language="yaml">
             <button class="copy-btn" aria-label="Copy code to clipboard">Copy</button>
@@ -679,6 +761,13 @@ server {
 }</code></pre>
           </div>
 
+          <div class="my-8">
+            <img src="assets/images/minio-web-ui.png" 
+                 alt="MinIO Web Console User Interface" 
+                 class="w-full max-w-4xl mx-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" />
+            <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic">MinIO Web Console accessible through the load balancer</p>
+          </div>
+
           <hr>
 
           <h2 id="connecting-and-managing-with-minio-client-mc">Connecting and Managing with MinIO Client (<code>mc</code>)</h2>
@@ -779,6 +868,13 @@ mc admin user svcacct add --access-key 'app.test.access.key' --secret-key 'app.t
           </div>
 
           <p>The generated <code>Access Key</code> and <code>Secret Key</code> can now be used in your application's S3 client configuration to interact with <code>test-bucket</code>.</p>
+
+          <div class="my-8">
+            <img src="assets/images/minio-cluster-status-info-in-cli.png" 
+                 alt="MinIO cluster status information shown in command line interface" 
+                 class="w-full max-w-4xl mx-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm" />
+            <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic">MinIO cluster status and information via mc admin</p>
+          </div>
 
           <hr>
 
