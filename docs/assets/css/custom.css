@@ -11,6 +11,17 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Prevent horizontal overflow on all devices */
+body, html {
+  overflow-x: hidden;
+}
+
+/* Ensure main content container doesn't overflow */
+main {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
 /* ========================================
    CODE BLOCKS AND SYNTAX HIGHLIGHTING
    ======================================== */
@@ -131,6 +142,10 @@ html {
 .content-area p {
   margin-bottom: 1rem;
   line-height: 1.7;
+  /* Ensure long text strings wrap properly on mobile */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .content-area ul,
@@ -142,6 +157,10 @@ html {
 .content-area li {
   margin-bottom: 0.5rem;
   line-height: 1.6;
+  /* Ensure long text strings wrap properly on mobile */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .content-area code:not(.highlight code) {
@@ -150,6 +169,9 @@ html {
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
+  /* Ensure long code strings wrap properly on mobile */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .dark .content-area code:not(.highlight code) {
@@ -506,6 +528,60 @@ button:focus {
   }
 }
 /* ========================================
+   TEXT WRAPPING AND OVERFLOW HANDLING
+   ======================================== */
+
+/* Ensure all text content wraps properly on mobile devices */
+.content-area a,
+.content-area span,
+.content-area div,
+.content-area td,
+.content-area th {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Special handling for URLs and long links */
+.content-area a[href] {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  hyphens: none; /* Don't hyphenate URLs */
+}
+
+/* Ensure code blocks don't overflow */
+.highlight pre {
+  overflow-x: auto;
+  word-wrap: normal;
+  white-space: pre;
+}
+
+/* For mobile devices, ensure no horizontal overflow */
+@media (max-width: 768px) {
+  .content-area {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+  }
+  
+  .content-area a[href] {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+  }
+  
+  /* Ensure tables don't overflow on mobile */
+  .content-area table {
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  .content-area td,
+  .content-area th {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+/* ========================================
    REFERENCES SECTION STYLES
    ======================================== */
 
@@ -517,6 +593,15 @@ button:focus {
   .hanging-indent p {
     margin: 0;
     line-height: 1.6;
+    /* Ensure reference URLs wrap properly */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  .hanging-indent a[href] {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    hyphens: none;
   }
 /* Respect user's contrast preferences */
 @media (prefers-contrast: high) {
